@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Control panel</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="vendors/feather/feather.css">
+  <link rel="stylesheet" href="vendors/ti-icons/css/themify-icons.css">
+  <link rel="stylesheet" href="vendors/css/vendor.bundle.base.css">
+  <link rel="stylesheet" href="vendors/dragula/dist/dragula.min.css" />
+  <link rel="stylesheet" href="css/vertical-layout-light/style.css">
+  <link rel="stylesheet" type="text/css" href="css/vertical-layout-light/my_css.css">
+  <link rel="shortcut icon" href="images/favicon.png" />
+</head>
+<body>
+  <div class="container-scroller">
+    <div class="container-fluid page-body-wrapper">
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <a class="navbar-brand brand-logo mr-5" href="index.html"><img src="images/eth_logo.svg" class="mr-2 nav-link" alt="logo"/></a>
+        <ul class="nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="index.html" onclick="save_configuration_to_cookie()">
+              <i class="ti-settings menu-icon"></i>
+              <span class="menu-title">Configuration</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="pages/run/run.html" onclick="save_configuration_to_cookie()">
+              <i class="ti-control-play menu-icon"></i>
+              <span class="menu-title">Run</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="pages/documentation/documentation.html" onclick="save_configuration_to_cookie()">
+              <i class="icon-paper menu-icon"></i>
+              <span class="menu-title">Documentation</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="main-panel">
+        <div class="content-wrapper">
+          
+          <div class="row">
+            <div class="col-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">Configuration</h4>
+                  <div class="template-demo">
+                    <button type="button" class="btn btn-outline-primary btn-fw configuration_disabler" onclick="$('#configuration_global_file')[0].click()">Load</button>
+                    <input type="file" id="configuration_global_file" hidden>
+                    <button type="button" class="btn btn-outline-primary btn-fw" onclick="save_configuration_to_file()">Save</button>
+                    <button type="button" class="btn btn-success" onclick="start_run()" id="run-start-button">Run</button>
+                    <button type="button" class="btn btn-danger myhide" onclick="stop_run()" id="run-stop-button">Stop</button>
+                    <button type="button" class="btn btn-danger myhide" id="myerrorbar" onclick="this.classList.add('myhide')">Some error msg</button>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+          <fieldset class="configuration_disabler">
+            <div class="row">
+              <div class="col-md-7 grid-margin">
+                <div class="card" id="mycommutator_card">
+                  <div class="card-body">
+                    <h4 class="card-title">Commutator board</h4>
+                    <form class="form-sample">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Port<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_comm_port"><i class="ti-alert"></i></div></label> 
+                            <div class="col-sm-9">
+                              <div class="input-group col-xs-12">
+                                <select class="form-control" id="relay_com_ports_select" onchange="$('#myerror_popup_comm_port')[0].classList.add('myhide')">
+                                  <option selected>test</option>
+                                </select>
+                                <span class="input-group-append">
+                                  <button type="button" class="btn btn-info" id="update_relay_com_ports">
+                                    <i class="btn-icon-append ti-reload"></i>                                                    
+                                  </button>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Relay delay<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_relay_delay"><i class="ti-alert"></i></div></label>
+                            
+                            <div class="col-sm-8">
+                              <input class="form-control" type="number" placeholder="in milliseconds" id="relay_delay" onchange="$('#myerror_popup_relay_delay')[0].classList.add('myhide')">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="row">
+                            <h5 class="col-sm-3 col-form-label">Pixels loop order</h5>
+                            <div class="form-group col-sm-3">
+                              <button type="button" class="btn btn-outline-primary btn-icon-text" onclick="myloop_add_loop('external'); ">
+                                Add external loop
+                                <i class="ti-loop btn-icon-append"></i>                          
+                              </button>
+                            </div>
+                            <div class="form-group col-sm-3">
+                              <button type="button" class="btn btn-outline-danger btn-icon-text" onclick="myloop_add_loop('inner'); ">
+                                Add inner loop
+                                <i class="ti-loop btn-icon-append"></i>                          
+                              </button>
+                            </div>
+                            <div class="form-group col-sm-3">
+                              <button type="button" class="btn btn-outline-info btn-icon-text" onclick="myloop_add_bus(); ">
+                                Add bus
+                                <i class="ti-panel btn-icon-append"></i>                                                                              
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div class="form-group row col-sm-12">
+                            <div class="badge badge-danger my_icon_popup myerror_popup" id="myloop_order_err"><i class="ti-alert"></i></div>
+                            <div class="myloop_container col-sm-12">
+                              <div class="myloop_nested myloop_container_nested">
+                                <div class="myloop_item myloop_node myloop_type_ext" onmouseup="update_verification_table()">
+                                  <div class="form-group row col-sm-12">
+                                    <div class="row  col-sm-12">
+                                      <h6 class="col-sm-11 col-form-label">External BNC pin loop</h6>
+                                    </div>
+                                    <div class="row col-sm-12">
+                                      <div class="input-group col-sm-4">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text">From:</span>
+                                        </div>
+                                        <input type="number" class="form-control dis-arrows myloop_bus_from" min="0" max="7" onfocusout="update_verification_table()">
+                                      </div>
+                                      <div class="input-group col-sm-3">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text">To:</span>
+                                        </div>
+                                        <input type="number" class="form-control dis-arrows myloop_bus_to" min="0" max="7" onfocusout="update_verification_table()">
+                                      </div>
+                                      <div class="input-group col-sm-4">
+                                        <div class="input-group-prepend">
+                                          <span class="input-group-text">Step:</span>
+                                        </div>
+                                        <input type="number" class="form-control dis-arrows myloop_bus_step" min="-7" max="7" onfocusout="update_verification_table()">
+                                      </div>
+                                      <button type="button" class="btn btn-outline-danger btn-icon col-sm-1 myloop_del_node" onclick="myloop_del_node(this);">
+                                        <i class="ti-trash"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                  
+                                  <div class="myloop_nested">
+                                    <div class="myloop_item myloop_node myloop_type_inn" onmouseup="update_verification_table()">
+                                      
+                                      <div class="form-group row col-sm-12">
+                                        <div class="row  col-sm-12">
+                                          <h6 class="col-sm-11 col-form-label">Inner BNC pin loop</h6>
+                                        </div>
+                                        <div class="row col-sm-12">
+                                          <div class="input-group col-sm-4">
+                                            <div class="input-group-prepend">
+                                              <span class="input-group-text">From:</span>
+                                            </div>
+                                            <input type="number" class="form-control dis-arrows myloop_bus_from" min="0" max="7" onfocusout="update_verification_table()">
+                                          </div>
+                                          <div class="input-group col-sm-3">
+                                            <div class="input-group-prepend">
+                                              <span class="input-group-text">To:</span>
+                                            </div>
+                                            <input type="number" class="form-control dis-arrows myloop_bus_to" min="0" max="7" onfocusout="update_verification_table()">
+                                          </div>
+                                          <div class="input-group col-sm-4">
+                                            <div class="input-group-prepend">
+                                              <span class="input-group-text">Step:</span>
+                                            </div>
+                                            <input type="number" class="form-control dis-arrows myloop_bus_step" min="-7" max="7" onfocusout="update_verification_table()">
+                                          </div>
+                                          <button type="button" class="btn btn-outline-danger btn-icon" onclick="myloop_del_node(this);">
+                                            <i class="ti-trash"></i>
+                                          </button>
+                                        </div>
+                                      </div>
+                                      
+                                      <div class="myloop_nested">
+                                        <div class="myloop_item myloop_node myloop_type_bus" onmouseup="update_verification_table()">
+                                          
+                                          <div class="row col-sm-12">
+                                            <div class="row col-sm-12">
+                                              <h6 class="col-sm-11 col-form-label">Bus connection</h6>
+                                            </div>
+                                            <div class="form-group row col-sm-12">
+                                              <div class="input-group col-sm-5">
+                                                <div class="input-group-prepend">
+                                                  <span class="input-group-text bg-primary text-white">External:</span>
+                                                </div>
+                                                <select class="form-control myloop_buscoon_ext">
+                                                  <option value="B">Blue</option>
+                                                  <option value="G">Green</option>
+                                                  <option value="R">Red</option>
+                                                  <option value="O">Orange</option>
+                                                </select>
+                                              </div>
+                                              <div class="input-group col-sm-5">
+                                                <div class="input-group-prepend">
+                                                  <span class="input-group-text bg-danger text-white">Inner:</span>
+                                                </div>
+                                                <select class="form-control myloop_buscoon_inn">
+                                                  <option value="B">Blue</option>
+                                                  <option value="G">Green</option>
+                                                  <option value="R">Red</option>
+                                                  <option value="O">Orange</option>
+                                                </select>
+                                              </div>
+                                              <button type="button" class="btn btn-outline-danger btn-icon col-sm-1"  onclick="myloop_del_node(this);">
+                                                <i class="ti-trash"></i>
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                        <div class="myloop_item myloop_node myloop_type_bus" onmouseup="update_verification_table()">
+                                          
+                                          <div class="row col-sm-12">
+                                            <div class="row col-sm-12">
+                                              <h6 class="col-sm-11 col-form-label">Bus connection</h6>
+                                            </div>
+                                            <div class="form-group row col-sm-12">
+                                              <div class="input-group col-sm-5">
+                                                <div class="input-group-prepend">
+                                                  <span class="input-group-text bg-primary text-white">External:</span>
+                                                </div>
+                                                <select class="form-control myloop_buscoon_ext">
+                                                  <option value="B">Blue</option>
+                                                  <option value="G">Green</option>
+                                                  <option value="R">Red</option>
+                                                  <option value="O">Orange</option>
+                                                </select>
+                                              </div>
+                                              <div class="input-group col-sm-5">
+                                                <div class="input-group-prepend">
+                                                  <span class="input-group-text bg-danger text-white">Inner:</span>
+                                                </div>
+                                                <select class="form-control myloop_buscoon_inn">
+                                                  <option value="B">Blue</option>
+                                                  <option value="G">Green</option>
+                                                  <option value="R">Red</option>
+                                                  <option value="O">Orange</option>
+                                                </select>
+                                              </div>
+                                              <button type="button" class="btn btn-outline-danger btn-icon col-sm-1" onclick="myloop_del_node(this);">
+                                                <i class="ti-trash"></i>
+                                              </button>
+                                            </div>
+                                          </div>
+                                          
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              
+              
+              <div class="col-md-5 grid-margin">
+                <div class="row grid-margin" id="mysmu_card">
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title">SMU</h4>
+                        <form class="form-sample">
+
+                          <div class="form-group row">
+                            <!-- <div class="col-sm-12"> -->
+                              <label class="col-sm-4 col-form-label">Type<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_type"><i class="ti-alert"></i></div></label> 
+                              <div class="col-sm-8">
+                                <div class="input-group col-xs-12">
+                                  <select class="form-control" id="smu_types_select" onchange="$('#myerror_popup_smu_type')[0].classList.add('myhide')">
+                                    <option selected>test</option>
+                                  </select>
+                                  <span class="input-group-append">
+                                    <button type="button" class="btn btn-info" id="update_smu_types">
+                                      <i class="btn-icon-append ti-reload"></i>                                                    
+                                    </button>
+                                  </span>
+                                </div>
+                              </div>
+                            <!-- </div> -->
+                          </div>
+
+                          <div class="form-group row">
+                            <!-- <div class="col-sm-12"> -->
+                              <label class="col-sm-4 col-form-label">Port<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_port"><i class="ti-alert"></i></div></label> 
+                              <div class="col-sm-8">
+                                <div class="input-group col-xs-12">
+                                  <select class="form-control" id="smu_ports_select" onchange="$('#myerror_popup_smu_port')[0].classList.add('myhide')">
+                                    <option selected>test</option>
+                                  </select>
+                                  <span class="input-group-append">
+                                    <button type="button" class="btn btn-info" id="update_smu_com_ports">
+                                      <i class="btn-icon-append ti-reload"></i>                                                    
+                                    </button>
+                                  </span>
+                                </div>
+                              </div>
+                            <!-- </div> -->
+                          </div>
+
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Voltage profile<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_v_profile"><i class="ti-alert"></i></div></label>
+                            <div class="col-sm-8">
+                              <div class="input-group">
+                                <input type="text" class="form-control file-upload-info" disabled="" placeholder="Upload text file" id="voltage_profile_text_path">
+                                <input id="voltage_profile_text_input" type="file" hidden>
+                                <span class="input-group-append">
+                                  <button class="file-upload-browse btn btn-info" type="button" id="voltage_profile_text_button">Upload</button>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Amplitude factor [V]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_v_factor"><i class="ti-alert"></i></div></label>
+                            <div class="col-sm-8">
+                              <input class="form-control" type="number" placeholder="" id="smu_voltage_factor" onchange="$('#myerror_popup_smu_v_factor')[0].classList.add('myhide')">
+                            </div>
+                          </div>
+                          
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">Time step [s]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_t_step"><i class="ti-alert"></i></div></label>
+                            <div class="col-sm-8">
+                              <input class="form-control" type="number" placeholder="" id="smu_time_step" onchange="$('#myerror_popup_smu_t_step')[0].classList.add('myhide')">
+                            </div>
+                          </div>                          
+                        </form>
+                      </div>      
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row grid-margin" id="myled_card">
+                  <div class="col-md-12">
+                    <div class="card">
+                      <div class="card-body">
+                        <h4 class="card-title">LED</h4>
+                        <form class="form-sample">
+
+                          <div class="form-group row">
+                            <!-- <div class="col-sm-12"> -->
+                              <label class="col-sm-4 col-form-label">Type<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_led_type"><i class="ti-alert"></i></div></label> 
+                              <div class="col-sm-8">
+                                <div class="input-group col-xs-12">
+                                  <select class="form-control" id="led_types_select" onchange="$('#myerror_popup_smu_type')[0].classList.add('myhide')">
+                                    <option selected>test</option>
+                                  </select>
+                                  <span class="input-group-append">
+                                    <button type="button" class="btn btn-info" id="update_led_types">
+                                      <i class="btn-icon-append ti-reload"></i>                                                    
+                                    </button>
+                                  </span>
+                                </div>
+                              </div>
+                            <!-- </div> -->
+                          </div>
+
+                          <div class="form-group row">
+                            <!-- <div class="col-sm-12"> -->
+                              <label class="col-sm-4 col-form-label">Port<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_led_port"><i class="ti-alert"></i></div></label> 
+                              <div class="col-sm-8">
+                                <div class="input-group col-xs-12">
+                                  <select class="form-control" id="led_ports_select" onchange="$('#myerror_popup_smu_port')[0].classList.add('myhide')">
+                                    <option selected>test</option>
+                                  </select>
+                                  <span class="input-group-append">
+                                    <button type="button" class="btn btn-info" id="update_led_com_ports">
+                                      <i class="btn-icon-append ti-reload"></i>                                                    
+                                    </button>
+                                  </span>
+                                </div>
+                              </div>
+                            <!-- </div> -->
+                          </div>
+                          
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label">LED current map</label>
+                            <div class="col-sm-8">
+                              <div class="input-group">
+                                <input type="text" class="form-control file-upload-info" disabled="" placeholder="Upload text file" id="current_profile_text_path">
+                                <input id="current_profile_text_input" type="file" hidden>
+                                <span class="input-group-append">
+                                  <button class="file-upload-browse btn btn-info" type="button" id="current_profile_text_button">Upload</button>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>      
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12 stretch-card">
+                    <div class="card" id="myverification_card">
+                      <div class="card-body">
+                        
+                        <p class="card-title ">Loop verification</p>
+                        <div class="badge badge-danger my_icon_popup" id="myverification_status"><i class="ti-alert"></i></div>
+                        <p class="font-weight-500">Total amount of pixels: <i id="myverification_counter"></i></p>
+                        
+                        <div class="table-responsive mylist-wrapper stretch-card">
+                          <table class="table table-striped table-borderless">
+                            <thead>
+                              <tr>
+                                <th>External BNC</th>
+                                <th>Inner BNC</th>
+                                <th>Current [A]</th>
+                                <th>Status</th>
+                              </tr>  
+                            </thead>
+                            <tbody id="myverification_tabl_body">
+                              
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <footer class="footer">
+          <div class="d-sm-flex justify-content-center justify-content-sm-between">
+            <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2022. Design by <a target="_blank" href="https://www.bootstrapdash.com/">BootstrapDash</a>. Developed by <a href="mailto:volodymyrsvintozelskyi@gmail.com">Volodymyr Svintozelskyi</a> </span>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+  
+  <script type="text/javascript" src="/eel.js"></script>
+  <script src="vendors/js/vendor.bundle.base.js"></script>
+  <!-- <script src="vendors/chart.js/Chart.min.js"></script>
+  <script src="vendors/datatables.net/jquery.dataTables.js"></script>
+  <script src="vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+  <script src="js/dataTables.select.min.js"></script>
+  <script src="js/off-canvas.js"></script>
+  <script src="js/hoverable-collapse.js"></script> -->
+  <!-- <script src="js/template.js"></script> -->
+  <!-- <script src="js/settings.js"></script>
+  <script src="js/todolist.js"></script> -->
+  <script src="vendors/dragula/dist/dragula.min.js"></script>
+  <script src="js/myeeljs.js"></script>
+  <script src="js/myjs.js"></script>
+</body>
+
+</html>
+
