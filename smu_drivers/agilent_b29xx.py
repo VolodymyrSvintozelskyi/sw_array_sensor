@@ -48,6 +48,7 @@
 #    disconnect()     -> for all items: closes the port object
 
 import pyvisa
+import time
 
 class EmptyDevice:
     pass
@@ -267,6 +268,7 @@ class SMU(Device):
     def applyV(self, v):
         self.value = v
         self.apply()
+        time.sleep(0.1)
         
         
     def measureVI(self):
