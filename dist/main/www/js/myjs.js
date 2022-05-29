@@ -11,7 +11,10 @@ updatedragula = (function() {
 
 function updatemaxheight_verification(){
   let newvalue = parseInt($("#mycommutator_card").css("height")) - parseInt($("#mysmu_card").css("height")) - parseInt($("#mysmu_card").css("margin-bottom"))  - parseInt($("#myled_card").css("height")) - parseInt($("#myled_card").css("margin-bottom"));
-  $("#myverification_card").css("max-height", newvalue);
+  if (newvalue > 0)
+    $("#myverification_card").css("max-height", newvalue);
+  else
+    $("#myverification_card").css("max-height", $("#myverification_card").css("min-height"));
 }
 
 new ResizeObserver(updatemaxheight_verification).observe($("#mycommutator_card")[0]);
