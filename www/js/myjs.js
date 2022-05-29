@@ -10,7 +10,7 @@ updatedragula = (function() {
 });
 
 function updatemaxheight_verification(){
-  let newvalue = parseInt($("#mycommutator_card").css("height")) - parseInt($("#mysmu_card").css("height")) - parseInt($("#mysmu_card").css("margin-bottom"));
+  let newvalue = parseInt($("#mycommutator_card").css("height")) - parseInt($("#mysmu_card").css("height")) - parseInt($("#mysmu_card").css("margin-bottom"))  - parseInt($("#myled_card").css("height")) - parseInt($("#myled_card").css("margin-bottom"));
   $("#myverification_card").css("max-height", newvalue);
 }
 
@@ -355,6 +355,8 @@ function create_configuration(){
   let commutator_relay_delay = $("#relay_delay")[0].value;
   let smu_port = $("#smu_ports_select")[0].value;
   let smu_type = $("#smu_types_select")[0].value;
+  let led_port = $("#led_ports_select")[0].value;
+  let led_type = $("#led_types_select")[0].value;
   let voltage_amp_factor = $("#smu_voltage_factor")[0].value;
   let voltage_time_step = $("#smu_time_step")[0].value;
   let loop_order_tree = gen_loop_tree();
@@ -369,6 +371,8 @@ function create_configuration(){
     "comm_relay_delay": commutator_relay_delay,
     "smu_port": smu_port,
     "smu_type": smu_type,
+    "led_port": led_port,
+    "led_type": led_type,
     "smu_v_factor": voltage_amp_factor,
     "smu_t_step": voltage_time_step,
     "smu_v_profile": voltage_profile_array,
@@ -415,6 +419,12 @@ function load_configuration(configuration){
   $("#smu_ports_select").empty();
   $("#smu_ports_select").append($.parseHTML(`<option>${configuration["smu_port"]}</option>`));
   $("#smu_ports_select")[0].value = configuration["smu_port"];
+  $("#led_types_select").empty();
+  $("#led_types_select").append($.parseHTML(`<option>${configuration["led_type"]}</option>`));
+  $("#led_types_select")[0].value = configuration["led_type"];
+  $("#led_ports_select").empty();
+  $("#led_ports_select").append($.parseHTML(`<option>${configuration["led_port"]}</option>`));
+  $("#led_ports_select")[0].value = configuration["led_port"];
   $("#smu_voltage_factor")[0].value = configuration["smu_v_factor"];
   $("#smu_time_step")[0].value = configuration["smu_t_step"];
   if (voltage_profile_array.length > 0){
@@ -530,6 +540,18 @@ function start_run(){
     $('#myerror_popup_smu_port')[0].classList.remove('myhide');
     return;
   }
+  let led_type = $("#led_types_select")[0].value;
+  if (! smu_type){
+    show_error("Invalid LED type");
+    $('#myerror_popup_smu_type')[0].classList.remove('myhide');
+    return;
+  }
+  let led_port = $("#led_ports_select")[0].value;
+  if (! smu_port){
+    show_error("Invalid LED port");
+    $('#myerror_popup_smu_port')[0].classList.remove('myhide');
+    return;
+  }
   let voltage_amp_factor = parseFloat( $("#smu_voltage_factor")[0].value );
   if (! voltage_amp_factor || voltage_amp_factor <= 0){
     show_error("Invalid SMU amplitude factor");
@@ -555,7 +577,9 @@ function start_run(){
     "smu_v_factor": voltage_amp_factor,
     "smu_t_step": voltage_time_step,
     "smu_v_profile": voltage_profile_array,
-    "pixel_loop": pixel_loop
+    "pixel_loop": pixel_loop,
+    "led_port": led_port,
+    "led_type": led_type
   }
   save_configuration_to_cookie();
   console.log("Start run with settings:");
@@ -598,4 +622,12 @@ if (read_cookie("current_state") == "idle"){
   enable_editing();
   $("#run-stop-button")[0].classList.add("myhide");
   $("#run-start-button")[0].classList.remove("myhide");
+}
+
+try {
+  disable_dashboard_updating();
+
+  check_run_state();
+} catch (error) {
+  console.error(error);
 }

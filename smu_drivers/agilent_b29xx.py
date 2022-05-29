@@ -49,26 +49,67 @@
 
 import pyvisa
 
-class SMU:
+class EmptyDevice:
+    pass
+
+class Device(EmptyDevice):
+
+    multichannel = [" CH1", " CH2"]
+
     def __init__(self):
-        self.rm = pyvisa.ResourceManager() 
-        self.channel = 2
-        self.source = "Voltage [V]"
-        self.protection = 0.01
-        self.speed = "Medium"
-        if self.speed == "Fast":
-            self.nplc = "0.1"
-        if self.speed == "Medium":
-            self.nplc = "1.0"
-        if self.speed == "Slow":
-            self.nplc = "10.0"
-    
-    def connect(self, port):
-        self.port = self.rm.open_resource(port)
+        
+        EmptyDevice.__init__(self)
+        
+        self.shortname = "Agilent B29xx"
+        
+        # remains here for compatibility with v1.5.3
+        self.multichannel = [" CH1", " CH2"]
+        
+        self.variables =["Voltage", "Current"]
+        self.units =    ["V", "A"]
+        self.plottype = [True, True] # True to plot data
+        self.savetype = [True, True] # True to save data
 
-    def disconnect(self):
-        self.port.close()
-
+        self.port_manager = True
+        self.port_types = ["USB", "GPIB"]
+        
+        # self.port_properties = { "timeout": 10,
+                                 # }
+                                 
+        self.commands = {
+                        "Voltage [V]" : "VOLT",
+                        "Current [A]" : "CURR",
+                        }
+                                 
+    def set_GUIparameter(self):
+        
+        GUIparameter = {
+                        "SweepMode" : ["Voltage [V]", "Current [A]"],
+                        "RouteOut": ["Front", "Rear"],
+                        "Speed": ["Fast", "Medium", "Slow"],
+                        "Compliance": 100e-6,
+                        #"Average": 1, # not yet supported
+                        }
+                        
+        return GUIparameter
+                                 
+    def get_GUIparameter(self, parameter = {}):
+        self.four_wire = parameter['4wire']
+        self.route_out = parameter['RouteOut']
+        self.source = parameter['SweepMode']
+        self.protection = parameter['Compliance']
+        self.speed = parameter['Speed']
+        self.average = int(parameter['Average'])
+        
+        if self.average < 1:
+            self.average = 1
+        if self.average > 100:
+            self.average = 100
+            
+        self.device = parameter['Device']
+        self.channel = self.device[-1]
+        
+        
     def initialize(self):
         # once at the beginning of the measurement
         self.port.write("*RST")
@@ -81,7 +122,10 @@ class SMU:
         
         self.port.write(":OUTP%s:PROT ON" % self.channel)  # enables  over voltage / over current protection
 
+            
     def configure(self):
+    
+        
         if self.source == "Voltage [V]":
             self.port.write(":SOUR%s:FUNC VOLT" % self.channel)                  
             # sourcemode = Voltage
@@ -193,3 +237,42 @@ class SMU:
     def finish(self):
         pass
         
+        
+class SMU(Device):
+    def __init__(self, port) -> None:
+        print("SMU open: ", port)
+        super().__init__()
+        gui_parameters = {
+            '4wire': False,
+            'RouteOut': "???",
+            'SweepMode': "Voltage [V]",
+            'Compliance': 0.01,
+            'Speed': 'Medium',
+            'Average': 0,
+            'Device': [
+                2# channel
+            ]
+        }
+        self.get_GUIparameter(gui_parameters)
+        self.rm = pyvisa.ResourceManager() 
+        self.port = self.rm.open_resource(port)
+        self.port.write('*IDN?')
+        resp = self.port.read().strip()
+        assert resp == "", "Invalid SMU responce"
+        print("SMU connected: ", resp)
+        self.initialize()
+        self.configure()
+        self.poweron()
+
+    def applyV(self, v):
+        self.value = v
+        self.apply()
+        
+        
+    def measureVI(self):
+        return self.call()
+
+    def disconnect(self):
+        self.poweroff()
+        self.deinitialize()
+        self.port.close()
