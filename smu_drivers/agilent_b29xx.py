@@ -258,7 +258,7 @@ class SMU(Device):
         self.port = self.rm.open_resource(port)
         self.port.write('*IDN?')
         resp = self.port.read().strip()
-        assert resp == "", "Invalid SMU responce"
+        assert resp != "", "Invalid SMU responce"
         print("SMU connected: ", resp)
         self.initialize()
         self.configure()
