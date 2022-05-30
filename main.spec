@@ -6,10 +6,10 @@ block_cipher = None
 
 a = Analysis(
     ['main.py'],
-    pathex=['.\\venv\\Lib\\site-packages'],
+    pathex=[],
     binaries=[],
     datas=[('D:\\Documents\\projects\\sw_array_sensor\\venv\\lib\\site-packages\\eel\\eel.js', 'eel'), ('.\\www\\', '.\\www\\')],
-    hiddenimports=['bottle_websocket'],
+    hiddenimports=['bottle_websocket', 'minimalmodbus'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

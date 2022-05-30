@@ -54,7 +54,7 @@
  [],
  False,
  False,
- 1653914379,
+ 1653914748,
  [('run.exe',
    'D:\\Documents\\projects\\sw_array_sensor\\venv\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\run.exe',
    'EXECUTABLE')])
