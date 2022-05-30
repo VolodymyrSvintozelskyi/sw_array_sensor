@@ -304,3 +304,17 @@ function update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, 
 }
 
 enable_dashboard_updating();
+
+function read_cookie(name) {
+    var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
+    result && (result = JSON.parse(result[1]));
+    return result;
+  }
+
+// if ()
+
+// if (read_cookie('last_error')){
+//     $('#run_exception_descr')[0].innerHTML = read_cookie('last_error');
+//     $('.run_exception').css('display','flex');
+//     document.cookie = ["last_error", '=', JSON.stringify(''),';path=/'].join('');
+// }

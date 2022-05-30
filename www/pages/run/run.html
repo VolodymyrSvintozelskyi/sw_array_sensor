@@ -60,11 +60,20 @@
             </div>
 
             <div class="col-2 grid-margin stretch-card">
-              <div class="card card-light-danger">
+              <div class="card card-light-blue">
                 <div class="card-body">
                   <p class="mb-4">Time left</p>
                   <p class="fs-30 mb-2" id="run_total_time_left">NaN</p>
                   <p>Next pixel in <b id="run_pixel_time_left">NaN</b></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-8 grid-margin stretch-card run_exception" style="display: none;" onclick="$('.run_exception').css('display','none')">
+              <div class="card card-light-danger">
+                <div class="card-body">
+                  <p class="mb-4" id="run_exception_title">Error</p>
+                  <p class="fs-30 mb-2" id="run_exception_descr">Something goes very and very and very very very wrong</p>
                 </div>
               </div>
             </div>

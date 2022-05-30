@@ -70,8 +70,9 @@ class Run(T.Thread):
             led_mod = importlib.util.module_from_spec(led_mod_spec)
             led_mod_spec.loader.exec_module(led_mod)
             
-            smu = smu_mod.SMU(self.conf["smu_port"])
+            
             led = led_mod.LED(self.conf["led_port"])
+            smu = smu_mod.SMU(self.conf["smu_port"])
             comm = COMM(self.conf["comm_port"])
             comm.setDelay(self.conf["comm_relay_delay"])
             
@@ -84,19 +85,22 @@ class Run(T.Thread):
                 
                 with open("{}/{}{}.txt".format(self.outputfolder, pixel["ext"], pixel["inn"]), 'a') as f:
                     print("#pixel_time[s]\tV[V]\tI[A]",file=f)
-
-                    for v_iter,volt in enumerate(np.array(self.conf["smu_v_profile"])* self.conf["smu_v_factor"]):
-                        smu.applyV(volt)
-                        time.sleep(self.conf["smu_t_step"])
-                        real_v,i = smu.measureVI()
-                        print("{}\t{}\t{}".format(time.time()-pixel_start_time, real_v, i), file=f)
-                        self.pixel_time_left = (len(self.conf["smu_v_profile"]) - v_iter) * self.conf["smu_t_step"]
-                        self.total_time_left = (len(self.conf["pixel_loop"]["loop"]) - p_iter - 1) * len(self.conf["smu_v_profile"])*  self.conf["smu_t_step"] + self.pixel_time_left
-                        self.update_signal_chart(real_v,i, p_iter)
-                        if (self._stop_event.is_set()):
-                            break
+                    while time.time() - pixel_start_time < self.conf["smu_t_total"]:
+                        for v_iter,volt in enumerate(np.array(self.conf["smu_v_profile"])* self.conf["smu_v_factor"]):
+                            smu.applyV(volt)
+                            time.sleep(self.conf["smu_t_step"])
+                            real_v,i = smu.measureVI()
+                            print("{}\t{}\t{}".format(time.time()-pixel_start_time, real_v, i), file=f)
+                            self.pixel_time_left = (len(self.conf["smu_v_profile"]) - v_iter) * self.conf["smu_t_step"]
+                            self.total_time_left = (len(self.conf["pixel_loop"]["loop"]) - p_iter - 1) * len(self.conf["smu_v_profile"])*  self.conf["smu_t_step"] + self.pixel_time_left
+                            self.update_signal_chart(real_v,i, p_iter)
+                            if (self._stop_event.is_set()):
+                                break
+                        else:
+                            smu.applyV(0)
+                            continue
+                        break
                     else:
-                        smu.applyV(0)
                         continue
                     break  
             self.send_stop_run()

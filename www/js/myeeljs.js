@@ -77,12 +77,17 @@ eel.expose(python_stop_run);
 function python_stop_run(ok, msg){
   console.log("Python run interruption")
   document.cookie = ["current_state", '=', JSON.stringify("idle"),';path=/'].join('');
+  // document.cookie = ["last_error", '=', JSON.stringify(msg),';path=/'].join('');
   if (typeof stop_run === "function"){
     enable_editing();
     $("#run-stop-button")[0].classList.add("myhide");
     $("#run-start-button")[0].classList.remove("myhide");
     if (!ok) show_error(msg);
-  }else if (!ok) alert(msg);
+  }else if (!ok) {
+    $('#run_exception_descr')[0].innerHTML = msg;
+    $('.run_exception').css('display','flex');
+    // alert()
+  };
 }
 
 function check_run_state(){

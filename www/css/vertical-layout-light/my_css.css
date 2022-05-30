@@ -78,3 +78,42 @@
     opacity: 0.8;
     transition: opacity 0.15s ease;
 }
+
+.my_help_popup{
+    opacity: 1;
+}
+.my_help_popup p{
+    display: none;
+    background-color: #4747A1;
+    opacity: 1;
+    position: absolute;
+    padding: 1.25rem 1.25rem;
+    border-radius: 20px;
+    z-index: 100;
+}
+.my_help_popup:hover p{
+    display: block;
+}
+
+.mybig_popup{
+    position: fixed;
+    width: calc((100% -235px)*0.5);
+    height: fit-content;
+    display: none;
+    margin: 15%;
+    top: 5%;
+    /* background-color: #7DA0FA; */
+    background-color: #FFF;
+    border: 1px solid #FF4747;
+    box-shadow: 0 0 30px #888888;;
+    padding: 1.25rem 1.25rem;
+    padding-top: 2rem;
+    border-radius: 20px;
+    /* margin: calc( (100% - (100% - 235px)*0.5)/2 ); */
+    /* margin-right: calc( (100% - (100% - 235px)*0.5)/2 - 235px ); */
+    z-index: 200;
+}
+
+.main-panel {
+    min-height: 100vh;
+}
