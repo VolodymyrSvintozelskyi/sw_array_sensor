@@ -71,7 +71,8 @@ def getSmuTypesList():
 @eel.expose
 def getLedPortList():
     rm = pyvisa.ResourceManager()
-    return rm.list_resources()
+    comports = [port for port,desc,hwid in sorted(serial.tools.list_ports.comports())]
+    return list(rm.list_resources()) + comports
 
 @eel.expose
 def getLedTypesList():
