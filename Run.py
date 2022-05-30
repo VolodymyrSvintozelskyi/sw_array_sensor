@@ -100,15 +100,27 @@ class Run(T.Thread):
                         continue
                     break  
             self.send_stop_run()
+            smu.disconnect()
+            led.disconnect()
+            comm.disconnect()
         except Exception as e:
             self.send_stop_run(False, "Runtime exception: {}".format(type(e).__name__))
             print(traceback.format_exc())
             if not (smu is None): 
-                smu.disconnect()
+                try:
+                    smu.disconnect()
+                except Exception:
+                    print(traceback.format_exc())
             if not (led is None): 
-                led.disconnect()
-            if not (comm is None): 
-                comm.disconnect()
+                try:
+                    led.disconnect()
+                except Exception:
+                    print(traceback.format_exc())
+            if not (comm is None):
+                try: 
+                    comm.disconnect()
+                except Exception:
+                    print(traceback.format_exc())
             
         
                 

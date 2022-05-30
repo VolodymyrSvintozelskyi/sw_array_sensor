@@ -4,3 +4,5 @@ class LED:
     def setCurrent(self, i):
         pass
         # print("Apply LED I:",i)
+    def disconnect(self):
+        pass
