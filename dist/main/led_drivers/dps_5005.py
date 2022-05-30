@@ -234,103 +234,103 @@ class Dps5005:
 class LED:
 	def __init__(self, port) -> None:
 		self.ser = Serial_modbus(port, 1, 9600, 8)
-		self.limits = Import_limits("dps5005_limits.ini")
-		self.dps = Dps5005(ser, limits)
-		dps.voltage_set('w', 25)
-		dps.current_set('w', 1e-3)
-		dps.onoff('w', 1)
-		print(dps.read_all())
+		self.limits = Import_limits("./led_drivers/dps5005_limits.ini")
+		self.dps = Dps5005(self.ser, self.limits)
+		self.dps.voltage_set('w', 25)
+		self.dps.current_set('w', 1e-3)
+		self.dps.onoff('w', 1)
+		print(self.dps.read_all())
 	def setCurrent(self, i):
-		dps.current_set('w', i)
-		print(dps.read_all())
+		self.dps.current_set('w', i)
+		print(self.dps.read_all())
 	def disconnect(self):
-		dps.onoff('w', 0)
+		self.dps.onoff('w', 0)
 		# print("Apply LED I:",i)
-'''
-This file can operate independently controlling the DPS via the commandline however the GUI is much simpler.
-'''
-if __name__ == '__main__':
-	ser = Serial_modbus('/dev/ttyUSB1', 1, 9600, 8)
-	limits = Import_limits("dps5005_limits.ini")
-	dps = Dps5005(ser, limits)
-	try:
-		while True:
-			route = input("Enter command: ")
-			if route == "q":
-				quit()
-			elif route == "read":
-				start = time.time()
-				print(dps.read_all())
-				print(time.time() - start)	
-			elif route == "write":
-				value = [23.47, 1.234]
-				dps.write_voltage_current('w', value)
-			elif route == "r":
-				start = time.time()
-				print("voltage_set :  %6.2f" % dps.voltage_set())
-				print(time.time() - start)
-				print("current_set :  %6.3f" % dps.current_set())	
-				print("voltage     :  %6.2f" % dps.voltage())
-				print("current     :  %6.2f" % dps.current())
-				print("power       :  %6.2f" % dps.power())
-				print("voltage_in  :  %6.2f" % dps.voltage_in())
+# '''
+# This file can operate independently controlling the DPS via the commandline however the GUI is much simpler.
+# '''
+# if __name__ == '__main__':
+# 	ser = Serial_modbus('/dev/ttyUSB1', 1, 9600, 8)
+# 	limits = Import_limits("dps5005_limits.ini")
+# 	dps = Dps5005(ser, limits)
+# 	try:
+# 		while True:
+# 			route = input("Enter command: ")
+# 			if route == "q":
+# 				quit()
+# 			elif route == "read":
+# 				start = time.time()
+# 				print(dps.read_all())
+# 				print(time.time() - start)	
+# 			elif route == "write":
+# 				value = [23.47, 1.234]
+# 				dps.write_voltage_current('w', value)
+# 			elif route == "r":
+# 				start = time.time()
+# 				print("voltage_set :  %6.2f" % dps.voltage_set())
+# 				print(time.time() - start)
+# 				print("current_set :  %6.3f" % dps.current_set())	
+# 				print("voltage     :  %6.2f" % dps.voltage())
+# 				print("current     :  %6.2f" % dps.current())
+# 				print("power       :  %6.2f" % dps.power())
+# 				print("voltage_in  :  %6.2f" % dps.voltage_in())
 		
-				print("lock        :  %6s" % dps.lock())
-				print("protection  :  %6s" % dps.protect())	
-				print("cv_cc       :  %6s" % dps.cv_cc())
-				print("onoff       :  %6s" % dps.onoff())
-				print("b_led       :  %6s" % dps.b_led())
-				print("model       :  %6s" % dps.model())
-				print("version     :  %6s" % dps.version())
-				print("extract_m   :  %6s" % dps.extract_m())
+# 				print("lock        :  %6s" % dps.lock())
+# 				print("protection  :  %6s" % dps.protect())	
+# 				print("cv_cc       :  %6s" % dps.cv_cc())
+# 				print("onoff       :  %6s" % dps.onoff())
+# 				print("b_led       :  %6s" % dps.b_led())
+# 				print("model       :  %6s" % dps.model())
+# 				print("version     :  %6s" % dps.version())
+# 				print("extract_m   :  %6s" % dps.extract_m())
 				
-				print("voltage_set2:  %6s" % dps.voltage_set2())	
-				print("current_set2:  %6s" % dps.current_set2())
-				print("s_ovp       :  %6s" % dps.s_ovp())
-				print("s_ocp       :  %6s" % dps.s_ocp())
-				print("s_opp       :  %6s" % dps.s_opp())
-				print("b_led2      :  %6s" % dps.b_led2())
-				print("m_pre       :  %6s" % dps.m_pre())
-				print("s_ini       :  %6s" % dps.s_ini())
+# 				print("voltage_set2:  %6s" % dps.voltage_set2())	
+# 				print("current_set2:  %6s" % dps.current_set2())
+# 				print("s_ovp       :  %6s" % dps.s_ovp())
+# 				print("s_ocp       :  %6s" % dps.s_ocp())
+# 				print("s_opp       :  %6s" % dps.s_opp())
+# 				print("b_led2      :  %6s" % dps.b_led2())
+# 				print("m_pre       :  %6s" % dps.m_pre())
+# 				print("s_ini       :  %6s" % dps.s_ini())
 				
-			elif route == "vset":
-				value = input("Enter value: ")
-				dps.voltage_set('w', float(value))
-			elif route == "iset":
-				value = input("Enter value: ")
-				dps.current_set('w', float(value))
-			elif route == "lock":
-				value = input("Enter value: ")
-				dps.lock('w', float(value))
-			elif route == "on":
-				dps.onoff('w', 1)
-			elif route == "off":
-				dps.onoff('w', 0)		
-			elif route == "bled":
-				value = input("Enter value: ")
-				dps.b_led('w', float(value))		
-			elif route == "sovp":
-				value = input("Enter value: ")
-				dps.s_ovp('w', float(value))
-			elif route == "socp":
-				value = input("Enter value: ")
-				dps.s_ocp('w', float(value))
-			elif route == "sopp":
-				value = input("Enter value: ")
-				dps.s_opp('w', float(value))	
-			elif route == "sini":
-				value = input("Enter value: ")
-				dps.s_ini('w', float(value))
-			elif route == "m":	
-				for i in dir(dps):
-					print(i)
-			elif route == "a":	
-				dps.action_csv_file('dps-control-Book1.csv')
-			else:
-				pass
+# 			elif route == "vset":
+# 				value = input("Enter value: ")
+# 				dps.voltage_set('w', float(value))
+# 			elif route == "iset":
+# 				value = input("Enter value: ")
+# 				dps.current_set('w', float(value))
+# 			elif route == "lock":
+# 				value = input("Enter value: ")
+# 				dps.lock('w', float(value))
+# 			elif route == "on":
+# 				dps.onoff('w', 1)
+# 			elif route == "off":
+# 				dps.onoff('w', 0)		
+# 			elif route == "bled":
+# 				value = input("Enter value: ")
+# 				dps.b_led('w', float(value))		
+# 			elif route == "sovp":
+# 				value = input("Enter value: ")
+# 				dps.s_ovp('w', float(value))
+# 			elif route == "socp":
+# 				value = input("Enter value: ")
+# 				dps.s_ocp('w', float(value))
+# 			elif route == "sopp":
+# 				value = input("Enter value: ")
+# 				dps.s_opp('w', float(value))	
+# 			elif route == "sini":
+# 				value = input("Enter value: ")
+# 				dps.s_ini('w', float(value))
+# 			elif route == "m":	
+# 				for i in dir(dps):
+# 					print(i)
+# 			elif route == "a":	
+# 				dps.action_csv_file('dps-control-Book1.csv')
+# 			else:
+# 				pass
 
-	except KeyboardInterrupt:  	# Ctrl+C pressed, so...
-		print("close")
-	finally:
-		dps.onoff('w', 0)
-		quit()
+# 	except KeyboardInterrupt:  	# Ctrl+C pressed, so...
+# 		print("close")
+# 	finally:
+# 		dps.onoff('w', 0)
+# 		quit()
