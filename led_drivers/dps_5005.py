@@ -236,8 +236,15 @@ class LED:
 		self.ser = Serial_modbus(port, 1, 9600, 8)
 		self.limits = Import_limits("./led_drivers/dps5005_limits.ini")
 		self.dps = Dps5005(self.ser, self.limits)
-		self.dps.voltage_set('w', 25)
-		self.dps.current_set('w', 1e-3)
+		time.sleep(1)
+		input_volt = self.dps.voltage_in('r')
+		while input_volt > 0:
+			self.dps.voltage_set('w', input_volt)
+			check = self.dps.voltage_set('r')
+			if abs(check - input_volt) < 1: break
+			input_volt -= 1
+		assert input_volt > 0, "Failed to set LED voltage"
+		# self.dps.current_set('w', 1e-3)
 		self.dps.onoff('w', 1)
 		print(self.dps.read_all())
 	def setCurrent(self, i):
