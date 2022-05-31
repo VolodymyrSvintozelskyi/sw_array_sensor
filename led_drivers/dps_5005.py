@@ -237,7 +237,7 @@ class LED:
 		self.limits = Import_limits("./led_drivers/dps5005_limits.ini")
 		self.dps = Dps5005(self.ser, self.limits)
 		time.sleep(1)
-		input_volt = self.dps.voltage_in('r')
+		input_volt = self.dps.voltage_in()
 		while input_volt > 0:
 			self.dps.voltage_set('w', input_volt)
 			check = self.dps.voltage_set('r')
@@ -245,6 +245,7 @@ class LED:
 			input_volt -= 1
 		assert input_volt > 0, "Failed to set LED voltage"
 		# self.dps.current_set('w', 1e-3)
+		self.dps.current_set('w',0)
 		self.dps.onoff('w', 1)
 		print(self.dps.read_all())
 	def setCurrent(self, i):

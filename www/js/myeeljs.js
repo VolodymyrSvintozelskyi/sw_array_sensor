@@ -56,6 +56,7 @@ function send_start_run_cmd(configuration, onok = function(){}, onfail = functio
 
 function send_stop_run_cmd(onok = function(){}, onfail = function(){}){
     eel.stop_run()().then((responce) => {
+        console.log("responce for Stop request: "  + responce)
         if (responce == "ok") onok(); else onfail(responce);
       }); 
 }
