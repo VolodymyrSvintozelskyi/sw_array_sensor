@@ -108,7 +108,7 @@ class Run(T.Thread):
             led.disconnect()
             comm.disconnect()
         except Exception as e:
-            self.send_stop_run(False, "Runtime exception: {}".format(type(e).__name__))
+            self.send_stop_run(False, "Runtime exception {}: {}".format(type(e).__name__, e))
             print(traceback.format_exc())
             if not (smu is None): 
                 try:
