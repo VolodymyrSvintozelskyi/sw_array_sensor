@@ -9,7 +9,7 @@ import importlib.util
 
 class COMM:
     def __init__(self, port) -> None:
-        self.port = serial.Serial(port,115200)
+        self.port = serial.Serial(port,115200, timeout =10)
         resp = self.port.readline().decode().strip()
         assert resp == "Ready!", "Invalid COMM responce"
     def wait_responce(self):
