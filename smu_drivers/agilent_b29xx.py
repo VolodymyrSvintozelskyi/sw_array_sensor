@@ -240,7 +240,7 @@ class Device(EmptyDevice):
         
 class SMU(Device):
     def __init__(self, port) -> None:
-        print("SMU open: ", port)
+        print("SMU connecting: ", port)
         super().__init__()
         gui_parameters = {
             '4wire': False,
@@ -263,6 +263,7 @@ class SMU(Device):
         self.initialize()
         self.configure()
         self.poweron()
+        print("SMU ready")
 
     def applyV(self, v):
         self.value = v
@@ -275,3 +276,4 @@ class SMU(Device):
         self.poweroff()
         self.deinitialize()
         self.port.close()
+        print("SMU disconnected")

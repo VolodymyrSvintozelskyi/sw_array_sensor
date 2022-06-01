@@ -9,9 +9,11 @@ import importlib.util
 
 class COMM:
     def __init__(self, port) -> None:
+        print("COMM connecting... ", port)
         self.port = serial.Serial(port,115200, timeout =10)
         resp = self.port.readline().decode().strip()
         assert resp == "Ready!", "Invalid COMM responce"
+        print("COMM connected")
     def wait_responce(self):
         answered = False
         start_time = time.time()
@@ -32,6 +34,7 @@ class COMM:
         self.wait_responce()
     def disconnect(self):
         self.port.close()
+        print("COMM disconnected")
 
 class Run(T.Thread):
     def __init__(self, update_signal_chart = lambda *args: None, send_stop_run = lambda *args:None):
@@ -76,12 +79,17 @@ class Run(T.Thread):
             comm = COMM(self.conf["comm_port"])
             comm.setDelay(self.conf["comm_relay_delay"])
             
+            print("Instruments ready")
+
             for p_iter, pixel in enumerate(self.conf["pixel_loop"]["loop"]):
                 self.current_pixel = pixel
                 comm.setPin(pixel["ext"] + pixel["inn"])
                 led.setCurrent(pixel["curr"])
                 pixel_start_time = time.time()
-                self.update_signal_chart(pixel_no = p_iter)
+                # self.update_signal_chart(pixel_no = p_iter)
+                newpixel_flag = True
+
+                print("Pixel {}: I={}".format(p_iter, pixel['curr']))
                 
                 with open("{}/{}{}.txt".format(self.outputfolder, pixel["ext"], pixel["inn"]), 'a') as f:
                     print("#pixel_time[s]\tV[V]\tI[A]",file=f)
@@ -91,9 +99,10 @@ class Run(T.Thread):
                             time.sleep(self.conf["smu_t_step"])
                             real_v,i = smu.measureVI()
                             print("{}\t{}\t{}".format(time.time()-pixel_start_time, real_v, i), file=f)
-                            self.pixel_time_left = (len(self.conf["smu_v_profile"]) - v_iter) * self.conf["smu_t_step"]
-                            self.total_time_left = (len(self.conf["pixel_loop"]["loop"]) - p_iter - 1) * len(self.conf["smu_v_profile"])*  self.conf["smu_t_step"] + self.pixel_time_left
-                            self.update_signal_chart(real_v,i, p_iter)
+                            self.pixel_time_left = max((len(self.conf["smu_v_profile"]) - v_iter) * self.conf["smu_t_step"], self.conf["smu_t_total"] - (time.time() - pixel_start_time))
+                            self.total_time_left = (len(self.conf["pixel_loop"]["loop"]) - p_iter - 1) * max(len(self.conf["smu_v_profile"])*  self.conf["smu_t_step"], self.conf["smu_t_total"]) + self.pixel_time_left
+                            self.update_signal_chart(real_v,i, p_iter, newpixel_flag)
+                            newpixel_flag = False
                             if (self._stop_event.is_set()):
                                 break
                         else:

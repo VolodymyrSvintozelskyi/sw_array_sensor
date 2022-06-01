@@ -13,7 +13,7 @@ dashboard_updating = False
 #somewhere accessible to both:
 callback_queue = queue.Queue()
 
-def update_signal_chart(volt=False, i=False, pixel_no=0):
+def update_signal_chart(volt=False, i=False, pixel_no=0, newpixel_flag=True):
     global run
     if dashboard_updating:
         callback_queue.put(lambda : 
@@ -28,8 +28,10 @@ def update_signal_chart(volt=False, i=False, pixel_no=0):
             len(run.conf["pixel_loop"]["loop"]), 
             str((datetime.timedelta(seconds=round(run.pixel_time_left)))), 
             str((datetime.timedelta(seconds=round(run.total_time_left)))),
+            newpixel_flag
             )
         )
+        print("Dashboard updating")
 
 def queue_checker():
     while True:
@@ -46,6 +48,7 @@ def queue_checker():
 eel.spawn(queue_checker)
 
 def send_stop_run(ok = True, msg=""):
+    print("Run termination")
     callback_queue.put(lambda : 
         eel.python_stop_run(ok, msg)
     )
@@ -81,7 +84,7 @@ def getLedTypesList():
 
 @eel.expose
 def start_run(configuration):
-    print("Start run with",configuration)
+    print("Start run")
     global run
     if (run is None) or (not run.is_alive()):
         run = Run.Run(update_signal_chart, send_stop_run)
@@ -111,11 +114,13 @@ def check_run_state():
     
 @eel.expose
 def enable_dashboard_updating():
+    print("Dashboard updating enabled")
     global dashboard_updating
     dashboard_updating = True
 
 @eel.expose
 def disable_dashboard_updating():
+    print("Dashboard updating disabled")
     global dashboard_updating 
     dashboard_updating = False
 

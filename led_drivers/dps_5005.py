@@ -233,6 +233,7 @@ class Dps5005:
 
 class LED:
 	def __init__(self, port) -> None:
+		print("LED connecting...")
 		self.ser = Serial_modbus(port, 1, 9600, 8)
 		self.limits = Import_limits("./led_drivers/dps5005_limits.ini")
 		self.dps = Dps5005(self.ser, self.limits)
@@ -243,16 +244,19 @@ class LED:
 			check = self.dps.voltage_set('r')
 			if abs(check - input_volt) < 1: break
 			input_volt -= 1
+		print("LED voltage: ", check)
 		assert input_volt > 0, "Failed to set LED voltage"
 		# self.dps.current_set('w', 1e-3)
 		self.dps.current_set('w',0)
 		self.dps.onoff('w', 1)
-		print(self.dps.read_all())
+		# print(self.dps.read_all())
+		print("LED connected")
 	def setCurrent(self, i):
 		self.dps.current_set('w', i)
-		print(self.dps.read_all())
+		# print(self.dps.read_all())
 	def disconnect(self):
 		self.dps.onoff('w', 0)
+		print("LED disconnected")
 		# print("Apply LED I:",i)
 # '''
 # This file can operate independently controlling the DPS via the commandline however the GUI is much simpler.

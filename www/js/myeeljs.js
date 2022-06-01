@@ -62,9 +62,9 @@ function send_stop_run_cmd(onok = function(){}, onfail = function(){}){
 }
 
 eel.expose(update_run_dashboard_eel);
-function update_run_dashboard_eel(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time){
+function update_run_dashboard_eel(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time, newpixel_flag){
   if (typeof update_run_dashboard === "function")
-    update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time);
+    update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time, newpixel_flag);
 }
 
 function enable_dashboard_updating(){

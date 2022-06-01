@@ -281,6 +281,7 @@
     max-height: calc(100vh - #{$navbar-height});
     top: $navbar-height;
     bottom: 0;
+    box-shadow: 0 0 10px #000;
     overflow: auto;
     right: -$sidebar-width-lg;
     -webkit-transition: all 0.25s ease-out;

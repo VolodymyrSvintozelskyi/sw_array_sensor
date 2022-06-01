@@ -117,3 +117,7 @@
 .main-panel {
     min-height: 100vh;
 }
+
+.myloop_item input{
+    min-width: 55px !important;
+}

@@ -274,29 +274,33 @@ function update_pin_chart(ext_conn, inn_conn){
     $("#chart_inn_label")[0].innerHTML = inn_conn;
 }
 
-function update_signal_chart(ledcurr, volt, curr, timestep){
-    if (volt && curr && ledcurr){
-        $("#chart_ledcurr_label")[0].innerHTML = d3.format("~s")(ledcurr)+"A";
-        $("#chart_curr_label")[0].innerHTML = d3.format("~s")(curr)+"A";
-        $("#chart_volt_label")[0].innerHTML = d3.format("~s")(volt)+"V";
-        let nextime = 0;
-        if (signal_chart.data.datasets[0].data.length != 0)
-            nextime = signal_chart.data.datasets[0].data[signal_chart.data.datasets[0].data.length - 1].x + timestep;
-        signal_chart.data.datasets[0].data.push({x: nextime, y: volt});
-        signal_chart.data.datasets[1].data.push({x: nextime, y: curr});
-    }else{
+function update_signal_chart(ledcurr, volt, curr, timestep, newpixel_flag){
+    // if (volt && curr && ledcurr){
+    if (newpixel_flag){
         signal_chart.data.datasets[0].data.length = 0;
         signal_chart.data.datasets[1].data.length = 0;
-        $("#chart_ledcurr_label")[0].innerHTML = "";
-        $("#chart_curr_label")[0].innerHTML = "";
-        $("#chart_volt_label")[0].innerHTML = "";
     }
+    $("#chart_ledcurr_label")[0].innerHTML = d3.format("~s")(ledcurr)+"A";
+    $("#chart_curr_label")[0].innerHTML = d3.format("~s")(curr)+"A";
+    $("#chart_volt_label")[0].innerHTML = d3.format("~s")(volt)+"V";
+    let nextime = 0;
+    if (signal_chart.data.datasets[0].data.length != 0)
+        nextime = signal_chart.data.datasets[0].data[signal_chart.data.datasets[0].data.length - 1].x + timestep;
+    signal_chart.data.datasets[0].data.push({x: nextime, y: volt});
+    signal_chart.data.datasets[1].data.push({x: nextime, y: curr});
+    // }else{
+    //     signal_chart.data.datasets[0].data.length = 0;
+    //     signal_chart.data.datasets[1].data.length = 0;
+    //     $("#chart_ledcurr_label")[0].innerHTML = "";
+    //     $("#chart_curr_label")[0].innerHTML = "";
+    //     $("#chart_volt_label")[0].innerHTML = "";
+    // }
     signal_chart.update();
 }
 
-function update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time){
+function update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time, newpixel_flag){
     update_pin_chart(pin_ext, pin_inn);
-    update_signal_chart(led_curr, volt, curr, timestep);
+    update_signal_chart(led_curr, volt, curr, timestep, newpixel_flag);
     $("#run_progress_percent")[0].innerHTML = Math.round((1+pixel_no)/total_pixels*100) + "%";
     $("#run_progress_pixel")[0].innerHTML = (1+pixel_no) + "/"+total_pixels;
     $("#run_total_time_left")[0].innerHTML = total_time;
