@@ -10,7 +10,8 @@ class SMU:
         print("V applied")
         
     def measureVI(self):
-        return [random.random(), random.random()]
+        curr = random.random()
+        return [curr*curr, curr]
 
     def disconnect(self):
         print("SMU switched off")

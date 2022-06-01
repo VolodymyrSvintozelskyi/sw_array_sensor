@@ -162,6 +162,10 @@ function draw_signal_chart(){
                             display: true,
                             color:"#f2f2f2",
                             drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
                         }
                     }],
                     yAxes: [
@@ -225,8 +229,93 @@ function draw_signal_chart(){
     }  
 }
 
+function draw_cumulative_IV(){
+    if ($("#my-current-cumulative-IV").length) {
+        
+        let data = {
+            datasets: [
+                {
+                    label: 'IV',
+                    data: [],
+                    backgroundColor: '#F09397',
+                    borderColor: '#F09397',
+                    fill: false,
+                    showLine: true,
+                }
+            ],
+        };
+        
+        const config = {
+            'type': 'scatter',
+            'data': data,
+            options: {
+                elements: {
+                    point:{radius:5},
+                    line: {tension: .35}
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        ticks: {
+                            display: true,
+                            autoSkip: false,
+                            maxRotation: 0,
+                            // stepSize: 200,
+                            padding: 18,
+                            fontColor:"#6C7383"
+                        },
+                        gridLines: {
+                            display: true,
+                            color:"#f2f2f2",
+                            drawBorder: false
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Sensor V'
+                        }
+                    }],
+                    yAxes: [
+                        {
+                            display: true,
+                            ticks: {
+                                display: true,
+                                autoSkip: false,
+                                maxRotation: 0,
+                                padding: 18,
+                                // fontColor:"#F09397"
+                            },
+                            gridLines: {
+                                display: false
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Sensor I'
+                            }
+                        }
+                    ]
+                },
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    filler: {
+                        propagate: false
+                    },
+                    
+                },
+                legend: {
+                    display: false,
+                },
+            }
+        };
+        var signalChartCanvas = $("#my-current-cumulative-IV").get(0).getContext("2d");
+        var signalChart = new Chart(signalChartCanvas, config);
+        return signalChart
+    }  
+}
+
 var pin_chart = draw_pin_chart();
 var signal_chart = draw_signal_chart();
+var cumulative_IV_chart = draw_cumulative_IV();
 console.log(signal_chart.data)
 
 function update_pin_chart(ext_conn, inn_conn){
@@ -298,6 +387,27 @@ function update_signal_chart(ledcurr, volt, curr, timestep, newpixel_flag){
     signal_chart.update();
 }
 
+function update_cumulative_iv_chart(volt, curr, newpixel_flag){
+    // if (volt && curr && ledcurr){
+    if (newpixel_flag){
+        const randomColor = Math.floor(Math.random()*16777215).toString(16);
+        cumulative_IV_chart.data.datasets.push(
+            {
+                label: 'IV',
+                data: [{x:volt,y:curr}],
+                backgroundColor: '#'+randomColor,
+                borderColor: '#'+randomColor,
+                fill: false,
+                showLine: false,
+                order: - cumulative_IV_chart.data.datasets.length - 1
+            }
+        )
+    }else{
+        cumulative_IV_chart.data.datasets[cumulative_IV_chart.data.datasets.length - 1].data.push({x:volt, y:curr})
+    }
+    cumulative_IV_chart.update();
+}
+
 function update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, pixel_no, total_pixels, pixel_time, total_time, newpixel_flag){
     update_pin_chart(pin_ext, pin_inn);
     update_signal_chart(led_curr, volt, curr, timestep, newpixel_flag);
@@ -305,6 +415,7 @@ function update_run_dashboard(pin_ext, pin_inn, led_curr, volt, curr, timestep, 
     $("#run_progress_pixel")[0].innerHTML = (1+pixel_no) + "/"+total_pixels;
     $("#run_total_time_left")[0].innerHTML = total_time;
     $("#run_pixel_time_left")[0].innerHTML = pixel_time;
+    update_cumulative_iv_chart(volt,curr,newpixel_flag)
 }
 
 enable_dashboard_updating();
