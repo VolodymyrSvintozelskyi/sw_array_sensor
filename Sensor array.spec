@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\Volodymyr\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python39\\site-packages\\eel\\eel.js', 'eel'), ('.\\www\\', '.\\www\\')],
+    datas=[('D:\\Documents\\projects\\sw_array_sensor\\venv\\lib\\site-packages\\eel\\eel.js', 'eel'), ('.\\www\\', '.\\www\\')],
     hiddenimports=['bottle_websocket', 'minimalmodbus'],
     hookspath=[],
     hooksconfig={},
