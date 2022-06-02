@@ -40,6 +40,9 @@ $("#current_profile_text_input").on("change", function(){
   let fr=new FileReader();
   fr.onload=function(){
     led_current_array = fr.result.split("\n").map(x => parseFloat(x));
+    led_current_array = led_current_array.filter(function (value) {
+      return !Number.isNaN(value);
+    });
     update_verification_table();
   }
   fr.readAsText(this.files[0]);
@@ -49,6 +52,9 @@ $("#voltage_profile_text_input").on("change", function(){
   let fr=new FileReader();
   fr.onload=function(){
     voltage_profile_array = fr.result.split("\n").map(x => parseFloat(x));
+    voltage_profile_array = voltage_profile_array.filter(function (value) {
+      return !Number.isNaN(value);
+    })
   }
   fr.readAsText(this.files[0]);
   $('#myerror_popup_smu_v_profile')[0].classList.add('myhide');
@@ -366,6 +372,7 @@ function create_configuration(){
   let loop_order_tree = gen_loop_tree();
   let led_i_profile_filename;
   let smu_v_profile_filename;
+  let output_folder = $('#output_folder')[0].value;
   if (led_current_array.length > 0) 
   led_i_profile_filename = $("#current_profile_text_path")[0].value;
   if (voltage_profile_array.length > 0) 
@@ -385,6 +392,7 @@ function create_configuration(){
     "smu_v_profile_filename": smu_v_profile_filename,
     "led_i_profile_filename": led_i_profile_filename,
     "loop_order_tree": loop_order_tree,
+    'output_folder': output_folder
   }
   return configuration;
 }
@@ -433,6 +441,7 @@ function load_configuration(configuration){
   $("#smu_voltage_factor")[0].value = configuration["smu_v_factor"];
   $("#smu_time_step")[0].value = configuration["smu_t_step"];
   $("#smu_time_total")[0].value = configuration["smu_t_total"];
+  $('#output_folder')[0].value = configuration['output_folder'] ? configuration['output_folder'] : "{timestamp}";
   if (voltage_profile_array.length > 0){
     $("#voltage_profile_text_path")[0].value = configuration["smu_v_profile_filename"];
   }
@@ -534,6 +543,12 @@ function start_run(){
     $('#myerror_popup_relay_delay')[0].classList.remove('myhide');
     return;
   }
+  let output_folder = $('#output_folder')[0].value;
+  if( ! /\S/.test(output_folder)){
+    show_error("Invalid output folder name");
+    $('#myerror_popup_output_folder')[0].classList.remove('myhide');
+    return;
+  }
   let smu_type = $("#smu_types_select")[0].value;
   if (! smu_type){
     show_error("Invalid SMU type");
@@ -592,7 +607,8 @@ function start_run(){
     "smu_v_profile": voltage_profile_array,
     "pixel_loop": pixel_loop,
     "led_port": led_port,
-    "led_type": led_type
+    "led_type": led_type,
+    'output_folder': output_folder
   }
   save_configuration_to_cookie();
   console.log("Start run with settings:");
@@ -666,7 +682,7 @@ function gen_smu_v_example(){
     options: {
       elements: {
         point:{radius:5},
-        line: {tension: .35}
+        line: {tension: .0}
       },
       scales: {
         xAxes: [{
@@ -754,8 +770,125 @@ function gen_smu_v_example(){
   return signalChart;
 }
 
+function gen_pix_map_example(){
+  pin_chart_radius = 10;
+    const pin_chart_footer = (tooltipItems) => {
+        if (tooltipItems[0]["xLabel"] == 0){
+            return "O"+(8-tooltipItems[0]["yLabel"])
+        }
+        if (tooltipItems[0]["xLabel"] == 9){
+            return "G"+(tooltipItems[0]["yLabel"] - 1)
+        }
+        if (tooltipItems[0]["yLabel"] == 0){
+            return "R"+(tooltipItems[0]["xLabel"] - 1)
+        }
+        if (tooltipItems[0]["yLabel"] == 9){
+            return "B"+(8 - tooltipItems[0]["xLabel"])
+        }
+        return "";
+    };
+    
+    var areaOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            filler: {
+                propagate: false
+            }
+        },
+        scales: {
+            xAxes: [{
+                display: true,
+                ticks: {
+                    display: false,
+                    padding: 10,
+                    min: -1,
+                    max: 10,
+                },
+                gridLines: {
+                    display: false,
+                    drawBorder: false,
+                    color: 'transparent',
+                    zeroLineColor: '#eeeeee'
+                }
+            }],
+            yAxes: [{
+                display: true,
+                ticks: {
+                    display: false,
+                    min: -1,
+                    max: 10,
+                },
+                gridLines: {
+                    display: false,
+                    color:"#f2f2f2",
+                    drawBorder: false,
+                }
+            }]
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            enabled: true,
+            callbacks: {
+                footer: pin_chart_footer,
+            }
+        },
+    }
+    
+    var orange_data = [];
+    var red_data = [];
+    var blue_data = [];
+    var green_data = [];
+    var radius = pin_chart_radius;
+    for (var i = 0; i < 8; i++) {
+        orange_data.push({x: 0, y:1+i+0.25, r:radius});
+        red_data.push({x: 1+i-0.25, y:0, r:radius});
+        blue_data.push({x: 1+i+0.25, y:9, r:radius});
+        green_data.push({x: 9, y:1+i-0.25, r:radius});
+    }
+    
+    const data = {
+        datasets: [{
+            'label': 'Red',
+            'data': red_data,
+            'backgroundColor': 'rgba(255, 71, 71, 0.2)'
+        },
+        {
+            'label': 'Green',
+            'data': green_data,
+            'backgroundColor': 'rgba(87, 182, 87, 0.2)'
+        },
+        {
+            'label': 'Blue',
+            'data': blue_data,
+            'backgroundColor': 'rgba(36, 138, 253, 0.2)'
+        },
+        {
+            'label': 'Orange',
+            'data': orange_data,
+            'backgroundColor': 'rgba(255, 193, 0, 0.2)'
+        }]
+    };
+    var pinChartCanvas = $("#my-pixel-map-example").get(0).getContext("2d");
+    var pinChart = new Chart(pinChartCanvas, {
+        type: 'bubble',
+        data: data,
+        options: areaOptions
+    });
+    return pinChart
+}
+
 var smu_v_example_chart = gen_smu_v_example()
+var pixel_map_examp_chart = gen_pix_map_example();
+
 function draw_smu_v_example(){
+
+  $('.mybig_popup').css('display','block');
+  $('#my-pixel-map-example').css('display','none');
+  $('#my-smu-voltage-example').css('display','block');
+
   let newdataset = [];
   let curr_t = 0;
 
@@ -788,9 +921,58 @@ function draw_smu_v_example(){
   while (curr_t < voltage_time_total){
     for (let vol_i = 0; vol_i < voltage_profile_array.length; vol_i ++){
       newdataset.push({x: curr_t, y: voltage_profile_array[vol_i]*voltage_amp_factor});
+      newdataset.push({x: curr_t+voltage_time_step, y: voltage_profile_array[vol_i]*voltage_amp_factor});
       curr_t += voltage_time_step;
     }
   }
   smu_v_example_chart.data.datasets[0].data = newdataset
   smu_v_example_chart.update();
+}
+
+function draw_pixel_map_example(){
+  function descrToCoords(descr){
+    let pin = parseInt(descr[1]);
+    switch (descr[0]){
+        case 'R': return [1+pin-0.25, 0];
+        case 'G': return [0, 1+pin -0.25];
+        case 'B': return [8-pin + 0.25, 0];
+        case 'O': return [0, 8-pin + 0.25];
+    }
+  }
+  $('.mybig_popup').css('display','block');
+  $('#my-pixel-map-example').css('display','block');
+  $('#my-smu-voltage-example').css('display','none');
+  // console.log(pixel_map_examp_chart.chart.datasets);
+  pixel_map_examp_chart.chart.data.datasets.length = 4;
+  let pixel_loop = update_verification_table();
+  if (pixel_loop.err){
+    show_error("Check verification table");
+    return;
+  }
+  maxcurrent = Math.max(...pixel_loop.loop.map(pixel => pixel['curr']));
+  console.log(maxcurrent)
+  newdata = [];
+  newbgcolors = [];
+  for (let i = 0; i < pixel_loop.loop.length; i++){
+    newcoordsext = descrToCoords(pixel_loop.loop[i]["ext"]);
+    newcoordsinn = descrToCoords(pixel_loop.loop[i]["inn"]);
+    // console.log(newcoordsext, newcoordsinn)
+    newdata.push({x: newcoordsext[0] + newcoordsinn[0], y: newcoordsext[1] + newcoordsinn[1], r:5});
+    newbgcolors.push('rgba(75,73,172,'+(pixel_loop.loop[i]['curr']/maxcurrent) + ')')
+    // newbgcolors.push('rgb(75,73,'+Math.round(172*pixel_loop.loop[i]['curr']/maxcurrent)+')')
+    console.log(newbgcolors[newbgcolors.length-1])
+  }
+  console.log(newbgcolors)
+  newdataset = {
+    'label': 'Data',
+    'data': newdata,
+    'pointBackgroundColor': newbgcolors,
+    'pointBorderColor': newbgcolors,
+    'fillColor': newbgcolors,
+    'backgroundColor': newbgcolors
+  }
+  // console.log(pixel_map_examp_chart.chart.datasets)
+  pixel_map_examp_chart.chart.data.datasets.push(newdataset);
+  pixel_map_examp_chart.update();
+  // 
 }

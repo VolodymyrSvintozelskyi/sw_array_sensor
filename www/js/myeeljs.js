@@ -87,7 +87,17 @@ function python_stop_run(ok, msg){
   }else if (!ok) {
     $('#run_exception_descr')[0].innerHTML = msg;
     $('.run_exception').css('display','flex');
+    $('#run_exception_title')[0].innerHTML = 'Error';
+    $('#run_exception_card')[0].classList.add('card-light-danger');
+    $('#run_exception_card')[0].classList.remove('card-light-success');
+
     // alert()
+  } else{
+    $('#run_exception_descr')[0].innerHTML = "Completed!";
+    $('#run_exception_title')[0].innerHTML = '';
+    $('#run_exception_card')[0].classList.remove('card-light-danger');
+    $('#run_exception_card')[0].classList.add('card-light-success');
+    $('.run_exception').css('display','flex');
   };
 }
 

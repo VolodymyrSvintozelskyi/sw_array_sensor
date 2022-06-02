@@ -3,3 +3,5 @@ output
 __pycache__
 dist.zip
 venv
+venv_linux
+build

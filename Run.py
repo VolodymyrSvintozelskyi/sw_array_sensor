@@ -44,11 +44,12 @@ class Run(T.Thread):
         self.send_stop_run = send_stop_run
         self.pixel_time_left = -1
         self.total_time_left = -1
+        self.dashboard = False
 
     def start_run(self,configuration):
         self.conf = configuration
         self._stop_event.clear()
-        self.outputfolder = "./output/{}".format(datetime.now().strftime("%m_%d_%Y-%H_%M_%S"))
+        self.outputfolder = "./output/{}".format(  configuration['output_folder'].format(timestamp=datetime.now().strftime("%m_%d_%Y-%H_%M_%S")))
         Path(self.outputfolder).mkdir(parents=True, exist_ok=True)
         self.start()
 
@@ -59,7 +60,8 @@ class Run(T.Thread):
         return self._stop_event.is_set()
 
     def run(self):
-        time.sleep(0.1)
+        while (not self.dashboard ):
+            time.sleep(0.1)
         smu = None
         led = None
         comm = None

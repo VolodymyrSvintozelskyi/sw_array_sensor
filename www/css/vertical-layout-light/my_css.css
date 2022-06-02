@@ -100,8 +100,9 @@
     width: calc((100% -235px)*0.5);
     height: fit-content;
     display: none;
-    margin: 15%;
-    top: 5%;
+    /* margin: 15%; */
+    top: 60px;
+    left: 60px;
     /* background-color: #7DA0FA; */
     background-color: #FFF;
     border: 1px solid #FF4747;
@@ -120,4 +121,22 @@
 
 .myloop_item input{
     min-width: 55px !important;
+}
+
+@media screen and (max-width: 991px){
+    .sidebar-offcanvas.active {
+        box-shadow: 0 0 10px #888888;
+        top: 0;
+        overflow: hidden;
+        max-height: 100vh;
+    }
+}
+
+.sidebar{
+    cursor: pointer;
+}
+
+.card-light-success{
+    background: #57B657;
+    color: #ffffff;
 }

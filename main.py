@@ -117,6 +117,9 @@ def enable_dashboard_updating():
     print("Dashboard updating enabled")
     global dashboard_updating
     dashboard_updating = True
+    global run
+    if not (run is None):
+        run.dashboard = True
 
 @eel.expose
 def disable_dashboard_updating():

@@ -256,6 +256,7 @@ class LED:
 		# print(self.dps.read_all())
 	def disconnect(self):
 		self.dps.onoff('w', 0)
+		self.ser.instrument.serial.close()
 		print("LED disconnected")
 		# print("Apply LED I:",i)
 # '''
