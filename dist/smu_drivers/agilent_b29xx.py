@@ -239,7 +239,16 @@ class Device(EmptyDevice):
         
         
 class SMU(Device):
-    def __init__(self, port) -> None:
+    parameters = {
+        "nplc": {
+            'type': "text"
+        },
+        "channel": {
+            'type': "text"
+        }
+    }
+
+    def __init__(self, port, custom_parameters={}) -> None:
         print("SMU connecting: ", port)
         super().__init__()
         gui_parameters = {
@@ -247,13 +256,17 @@ class SMU(Device):
             'RouteOut': "???",
             'SweepMode': "Voltage [V]",
             'Compliance': 0.01,
-            'Speed': 'Medium',
+            'Speed': 'MANUAL',
             'Average': 0,
             'Device': [
                 2# channel
             ]
         }
         self.get_GUIparameter(gui_parameters)
+        for k,v in custom_parameters.items():
+            setattr(self, k, v['value'])
+        self.channel = int(self.channel)
+        print("Custom pars: ch {}, npls {}".format(self.channel, self.nplc))
         self.rm = pyvisa.ResourceManager() 
         self.port = self.rm.open_resource(port)
         self.port.write('*IDN?')

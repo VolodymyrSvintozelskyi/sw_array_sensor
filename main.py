@@ -6,6 +6,8 @@ import os
 import Run
 import datetime
 import queue
+import importlib
+import traceback
 
 eel.init('www')
 
@@ -31,7 +33,7 @@ def update_signal_chart(volt=False, i=False, pixel_no=0, newpixel_flag=True):
             newpixel_flag
             )
         )
-        print("Dashboard updating")
+        # print("Dashboard updating")
 
 def queue_checker():
     while True:
@@ -70,6 +72,17 @@ def getVisaPortList():
 def getSmuTypesList():
     onlyfiles = [f[:-3] for f in os.listdir("smu_drivers/") if os.path.isfile(os.path.join("smu_drivers/", f)) and f[-3:] == '.py']
     return onlyfiles
+
+@eel.expose
+def getSmuCustomParsList(type):
+    try:
+        smu_mod_spec=importlib.util.spec_from_file_location("{}".format(type),"smu_drivers/{}.py".format(type))
+        smu_mod = importlib.util.module_from_spec(smu_mod_spec)
+        smu_mod_spec.loader.exec_module(smu_mod)
+        return smu_mod.SMU.parameters
+    except Exception as e:
+        print(traceback.format_exc())
+        return "Runtime exception {}: {}".format(type(e).__name__, e)
 
 @eel.expose
 def getLedPortList():

@@ -5,3 +5,4 @@ dist.zip
 venv
 venv_linux
 build
+dist-linux.zip

@@ -313,7 +313,7 @@
                               <label class="col-sm-4 col-form-label">Type<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_type"><i class="ti-alert"></i></div></label> 
                               <div class="col-sm-8">
                                 <div class="input-group col-xs-12">
-                                  <select class="form-control" id="smu_types_select" onchange="$('#myerror_popup_smu_type')[0].classList.add('myhide')">
+                                  <select class="form-control" id="smu_types_select" onchange="$('#myerror_popup_smu_type')[0].classList.add('myhide'); custom_smu_pars_update();">
                                     <!-- <option selected>test</option> -->
                                   </select>
                                   <span class="input-group-append">
@@ -324,6 +324,10 @@
                                 </div>
                               </div>
                             <!-- </div> -->
+                          </div>
+                          
+                          <h5>Custom SMU parameters:</h5>
+                          <div id="custom_smu_pars_container">
                           </div>
 
                           <div class="form-group row">
@@ -490,6 +494,7 @@
         <footer class="footer">
           <div class="d-sm-flex justify-content-center justify-content-sm-between">
             <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2022. Design by <a target="_blank" href="https://www.bootstrapdash.com/">BootstrapDash</a>. Developed by <a href="mailto:volodymyrsvintozelskyi@gmail.com">Volodymyr Svintozelskyi</a> </span>
+            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Ver. 4</span>
           </div>
         </footer>
       </div>
@@ -511,8 +516,9 @@
   <!-- <script src="js/settings.js"></script>
   <script src="js/todolist.js"></script> -->
   <script src="vendors/dragula/dist/dragula.min.js"></script>
-  <script src="js/myeeljs.js"></script>
-  <script src="js/myjs.js"></script>
+  <script src="js/eeljs.js"></script>
+  <!-- <script src="js/loopdragdrop.js"></script> -->
+  <script src="js/confpage.js"></script>
   <script src="js/off-canvas.js"></script>
 </body>
 

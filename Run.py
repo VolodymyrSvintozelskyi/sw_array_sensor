@@ -6,6 +6,7 @@ from datetime import datetime
 import traceback
 import serial
 import importlib.util
+import json
 
 class COMM:
     def __init__(self, port) -> None:
@@ -51,6 +52,8 @@ class Run(T.Thread):
         self._stop_event.clear()
         self.outputfolder = "./output/{}".format(  configuration['output_folder'].format(timestamp=datetime.now().strftime("%m_%d_%Y-%H_%M_%S")))
         Path(self.outputfolder).mkdir(parents=True, exist_ok=True)
+        with open("{}/conf.json".format(self.outputfolder), "w") as write_file:
+            json.dump(configuration, write_file, indent=4)
         self.start()
 
     def stop_run(self):
@@ -77,7 +80,7 @@ class Run(T.Thread):
             
             
             led = led_mod.LED(self.conf["led_port"])
-            smu = smu_mod.SMU(self.conf["smu_port"])
+            smu = smu_mod.SMU(self.conf["smu_port"], self.conf["smu_custom_pars"])
             comm = COMM(self.conf["comm_port"])
             comm.setDelay(self.conf["comm_relay_delay"])
             
@@ -118,6 +121,7 @@ class Run(T.Thread):
             smu.disconnect()
             led.disconnect()
             comm.disconnect()
+            print("Completed!")
         except Exception as e:
             self.send_stop_run(False, "Runtime exception {}: {}".format(type(e).__name__, e))
             print(traceback.format_exc())

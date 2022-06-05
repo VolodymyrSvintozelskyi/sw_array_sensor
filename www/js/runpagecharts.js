@@ -234,14 +234,6 @@ function draw_cumulative_IV(){
         
         let data = {
             datasets: [
-                {
-                    label: 'IV',
-                    data: [],
-                    backgroundColor: '#F09397',
-                    borderColor: '#F09397',
-                    fill: false,
-                    showLine: true,
-                }
             ],
         };
         
@@ -377,19 +369,22 @@ function update_signal_chart(ledcurr, volt, curr, timestep, newpixel_flag){
         nextime = signal_chart.data.datasets[0].data[signal_chart.data.datasets[0].data.length - 1].x + timestep;
     signal_chart.data.datasets[0].data.push({x: nextime, y: volt});
     signal_chart.data.datasets[1].data.push({x: nextime, y: curr});
-    // }else{
-    //     signal_chart.data.datasets[0].data.length = 0;
-    //     signal_chart.data.datasets[1].data.length = 0;
-    //     $("#chart_ledcurr_label")[0].innerHTML = "";
-    //     $("#chart_curr_label")[0].innerHTML = "";
-    //     $("#chart_volt_label")[0].innerHTML = "";
-    // }
+    let npoints = signal_chart.data.datasets[0].data.length;
+    if (npoints > 1000){
+        signal_chart.data.datasets[0].data.splice(0, npoints-1000);
+        signal_chart.data.datasets[1].data.splice(0, npoints-1000);
+    }
     signal_chart.update();
 }
 
 function update_cumulative_iv_chart(volt, curr, newpixel_flag){
     // if (volt && curr && ledcurr){
     if (newpixel_flag){
+        if ((cumulative_IV_chart.data.datasets.length > 0)){
+            if ((cumulative_IV_chart.data.datasets.length * cumulative_IV_chart.data.datasets[0].data.length > 750)){
+                cumulative_IV_chart.data.datasets.splice(0,cumulative_IV_chart.data.datasets.length-Math.ceil(750 / cumulative_IV_chart.data.datasets[0].data.length));
+            }
+        }
         const randomColor = Math.floor(Math.random()*16777215).toString(16);
         cumulative_IV_chart.data.datasets.push(
             {
@@ -401,9 +396,13 @@ function update_cumulative_iv_chart(volt, curr, newpixel_flag){
                 showLine: false,
                 order: - cumulative_IV_chart.data.datasets.length - 1
             }
-        )
+        );
     }else{
-        cumulative_IV_chart.data.datasets[cumulative_IV_chart.data.datasets.length - 1].data.push({x:volt, y:curr})
+        cumulative_IV_chart.data.datasets[cumulative_IV_chart.data.datasets.length - 1].data.push({x:volt, y:curr});
+        let npoints = cumulative_IV_chart.data.datasets[cumulative_IV_chart.data.datasets.length - 1].data.length;
+        if (npoints > 1000){
+            cumulative_IV_chart.data.datasets[cumulative_IV_chart.data.datasets.length - 1].data.splice(0, npoints - 1000);
+        }
     }
     cumulative_IV_chart.update();
 }
