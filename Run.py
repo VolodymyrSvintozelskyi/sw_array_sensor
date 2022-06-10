@@ -85,6 +85,7 @@ class Run(T.Thread):
             comm.setDelay(self.conf["comm_relay_delay"])
             
             print("Instruments ready")
+            stop_run_flag = False
 
             for p_iter, pixel in enumerate(self.conf["pixel_loop"]["loop"]):
                 self.current_pixel = pixel
@@ -109,6 +110,9 @@ class Run(T.Thread):
                             self.update_signal_chart(real_v,i, p_iter, newpixel_flag)
                             newpixel_flag = False
                             if (self._stop_event.is_set()):
+                                stop_run_flag = True
+                                break
+                            if self.conf["smu_recovery_enable"] and (i > self.conf["smu_rec_thresh"]):
                                 break
                         else:
                             smu.applyV(0)
@@ -116,7 +120,32 @@ class Run(T.Thread):
                         break
                     else:
                         continue
-                    break  
+                    if stop_run_flag:
+                        break
+                    # RECOVERY
+                    print("RECOVERY")
+                    recovery_start_time = time.time()
+                    while time.time() - recovery_start_time < self.conf["smu_t_total_rec"]:
+                        for v_iter,volt in enumerate(np.array(self.conf["smu_v_profile_rec"])* self.conf["smu_v_factor_rec"]):
+                            smu.applyV(volt)
+                            time.sleep(self.conf["smu_t_step_rec"])
+                            real_v,i = smu.measureVI()
+                            print("{}\t{}\t{}".format(time.time()-pixel_start_time, real_v, i), file=f)
+                            self.pixel_time_left = max((len(self.conf["smu_v_profile_rec"]) - v_iter) * self.conf["smu_t_step_rec"], self.conf["smu_t_total_rec"] - (time.time() - recovery_start_time))
+                            self.total_time_left = (len(self.conf["pixel_loop"]["loop"]) - p_iter - 1) * max(len(self.conf["smu_v_profile"])*  self.conf["smu_t_step"], self.conf["smu_t_total"]) + self.pixel_time_left
+                            self.update_signal_chart(real_v,i, p_iter, newpixel_flag)
+                            newpixel_flag = False
+                            if (self._stop_event.is_set()):
+                                stop_run_flag = True
+                                break
+                        else:
+                            smu.applyV(0)
+                            continue
+                        break
+                    else:
+                        continue
+                    break
+
             self.send_stop_run()
             smu.disconnect()
             led.disconnect()

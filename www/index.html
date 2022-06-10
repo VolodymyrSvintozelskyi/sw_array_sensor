@@ -378,14 +378,74 @@
                           <div class="form-group row">
                             <label class="col-sm-4 col-form-label">Total pixel time [s]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_t_total"><i class="ti-alert"></i></div></label>
                             <div class="col-sm-8">
-                              <input class="form-control" type="number" placeholder="" id="smu_time_total" onchange="$('#myerror_popup_smu_t_step')[0].classList.add('myhide')">
+                              <input class="form-control" type="number" placeholder="" id="smu_time_total" onchange="$('#myerror_popup_smu_t_total')[0].classList.add('myhide')">
                             </div>
                           </div>   
 
-                          <button type="button" class="btn btn-outline-info btn-icon-text" onclick="draw_smu_v_example();">
+                          <button type="button" class="btn btn-outline-info btn-icon-text grid-margin" onclick="draw_smu_v_example();">
                             <i class="ti-eye btn-icon-prepend"></i>
                             Plot waveform
                           </button>
+
+                          <!-- RECOVERY -->
+
+                          <!-- <h5>RECOVERY:</h5> -->
+
+                          <div class="form-check grid-margin">
+                            <label class="form-check-label">
+                              <input id="smu_recovery_enable" type="checkbox" class="form-check-input" checked="" onclick="$('#smu_recovery_container').toggle(100)">
+                              Recovery enabled
+                            <i class="input-helper"></i></label>
+                          </div>
+
+                          <div id="smu_recovery_container">
+                            <div class="form-group row">
+                              <label class="col-sm-4 col-form-label">Recovery threshold: [A]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_rec_thresh"><i class="ti-alert"></i></div></label>
+                              <div class="col-sm-8">
+                                <input class="form-control" type="number" placeholder="" id="smu_rec_thresh" onchange="$('#myerror_popup_smu_rec_thresh')[0].classList.add('myhide')">
+                              </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                              <label class="col-sm-4 col-form-label">Recovery profile<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_v_profile_rec"><i class="ti-alert"></i></div></label>
+                              <div class="col-sm-8">
+                                <div class="input-group">
+                                  <input type="text" class="form-control file-upload-info" disabled="" placeholder="Upload text file" id="voltage_profile_text_path_rec">
+                                  <input id="voltage_profile_text_input_rec" type="file" hidden>
+                                  <span class="input-group-append">
+                                    <button class="file-upload-browse btn btn-info" type="button" id="voltage_profile_text_button_rec">Upload</button>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                              <label class="col-sm-4 col-form-label">Recovery factor [V]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_v_factor_rec"><i class="ti-alert"></i></div></label>
+                              <div class="col-sm-8">
+                                <input class="form-control" type="number" placeholder="" id="smu_voltage_factor_rec" onchange="$('#myerror_popup_smu_v_factor_rec')[0].classList.add('myhide')">
+                              </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                              <label class="col-sm-4 col-form-label">Recovery time step [s]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_t_step_rec"><i class="ti-alert"></i></div></label>
+                              <div class="col-sm-8">
+                                <input class="form-control" type="number" placeholder="" id="smu_time_step_rec" onchange="$('#myerror_popup_smu_t_step_rec')[0].classList.add('myhide')">
+                              </div>
+                            </div>     
+                            
+                            <div class="form-group row">
+                              <label class="col-sm-4 col-form-label">Recovery total time [s]<div class="badge badge-danger my_icon_popup myerror_popup myhide" id="myerror_popup_smu_t_total_rec"><i class="ti-alert"></i></div></label>
+                              <div class="col-sm-8">
+                                <input class="form-control" type="number" placeholder="" id="smu_time_total_rec" onchange="$('#myerror_popup_smu_t_total_rec')[0].classList.add('myhide')">
+                              </div>
+                            </div>   
+  
+                            <button type="button" class="btn btn-outline-info btn-icon-text" onclick="draw_smu_v_example(true);">
+                              <i class="ti-eye btn-icon-prepend"></i>
+                              Plot recovery waveform
+                            </button>
+                          </div>
+
                         </form>
                       </div>      
                     </div>
@@ -494,7 +554,7 @@
         <footer class="footer">
           <div class="d-sm-flex justify-content-center justify-content-sm-between">
             <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2022. Design by <a target="_blank" href="https://www.bootstrapdash.com/">BootstrapDash</a>. Developed by <a href="mailto:volodymyrsvintozelskyi@gmail.com">Volodymyr Svintozelskyi</a> </span>
-            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Ver. 4</span>
+            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Ver. 5</span>
           </div>
         </footer>
       </div>

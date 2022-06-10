@@ -1,6 +1,7 @@
 var drake =  window.dragula();
 var led_current_array = [];
 var voltage_profile_array = [];
+var voltage_profile_array_rec = [];
 
 updatedragula = (function() {
   if (drake){
@@ -34,6 +35,7 @@ function addFileHandler(label, button, file){
 }
 
 addFileHandler('voltage_profile_text_path', 'voltage_profile_text_button', 'voltage_profile_text_input');
+addFileHandler('voltage_profile_text_path_rec', 'voltage_profile_text_button_rec', 'voltage_profile_text_input_rec');
 addFileHandler('current_profile_text_path', 'current_profile_text_button', 'current_profile_text_input');
 
 $("#current_profile_text_input").on("change", function(){
@@ -58,6 +60,18 @@ $("#voltage_profile_text_input").on("change", function(){
   }
   fr.readAsText(this.files[0]);
   $('#myerror_popup_smu_v_profile')[0].classList.add('myhide');
+});
+
+$("#voltage_profile_text_input_rec").on("change", function(){
+  let fr=new FileReader();
+  fr.onload=function(){
+    voltage_profile_array_rec = fr.result.split("\n").map(x => parseFloat(x));
+    voltage_profile_array_rec = voltage_profile_array_rec.filter(function (value) {
+      return !Number.isNaN(value);
+    })
+  }
+  fr.readAsText(this.files[0]);
+  $('#myerror_popup_smu_v_profile_rec')[0].classList.add('myhide');
 });
 
 function myloop_del_node(but){
@@ -369,6 +383,9 @@ function create_configuration(){
   let voltage_amp_factor = $("#smu_voltage_factor")[0].value;
   let voltage_time_step = $("#smu_time_step")[0].value;
   let voltage_time_total = $("#smu_time_total")[0].value;
+  let voltage_amp_factor_rec = $("#smu_voltage_factor_rec")[0].value;
+  let voltage_time_step_rec = $("#smu_time_step_rec")[0].value;
+  let voltage_time_total_rec = $("#smu_time_total_rec")[0].value;
   let loop_order_tree = gen_loop_tree();
   let led_i_profile_filename;
   let smu_v_profile_filename;
@@ -394,12 +411,18 @@ function create_configuration(){
     "smu_t_step": voltage_time_step,
     "smu_t_total": voltage_time_total,
     "smu_v_profile": voltage_profile_array,
+    "smu_v_factor_rec": voltage_amp_factor_rec,
+    "smu_t_step_rec": voltage_time_step_rec,
+    "smu_t_total_rec": voltage_time_total_rec,
+    "smu_v_profile_rec": voltage_profile_array_rec,
     "led_i_profile": led_current_array,
     "smu_v_profile_filename": smu_v_profile_filename,
     "led_i_profile_filename": led_i_profile_filename,
     "loop_order_tree": loop_order_tree,
     'output_folder': output_folder,
-    'smu_custom_pars': smu_custom_pars
+    'smu_custom_pars': smu_custom_pars,
+    'smu_recovery_enable' : $('#smu_recovery_enable')[0].checked,
+    'smu_rec_thresh': $('#smu_rec_thresh')[0].value
   }
   return configuration;
 }
@@ -426,8 +449,10 @@ function parse_loop_node(tree_node){
 function load_configuration(configuration){
   if (! configuration) return;
   voltage_profile_array = configuration["smu_v_profile"];
+  voltage_profile_array_rec = configuration["smu_v_profile_rec"];
   led_current_array = configuration["led_i_profile"];
   if (! voltage_profile_array) voltage_profile_array = [];
+  if (! voltage_profile_array_rec) voltage_profile_array_rec = [];
   if (! led_current_array) led_current_array = [];
   $("#relay_com_ports_select").empty();
   $("#relay_com_ports_select").append($.parseHTML(`<option>${configuration["comm_port"]}</option>`));
@@ -448,7 +473,18 @@ function load_configuration(configuration){
   $("#smu_voltage_factor")[0].value = configuration["smu_v_factor"];
   $("#smu_time_step")[0].value = configuration["smu_t_step"];
   $("#smu_time_total")[0].value = configuration["smu_t_total"];
+  $("#smu_voltage_factor_rec")[0].value = configuration["smu_v_factor_rec"];
+  $("#smu_time_step_rec")[0].value = configuration["smu_t_step_rec"];
+  $("#smu_time_total_rec")[0].value = configuration["smu_t_total_rec"];
+  $('#smu_recovery_enable')[0].checked = configuration["smu_recovery_enable"];
   $('#output_folder')[0].value = configuration['output_folder'] ? configuration['output_folder'] : "{timestamp}";
+  $('#smu_rec_thresh')[0].value = configuration['smu_rec_thresh'];
+  
+  if ($('#smu_recovery_enable')[0].checked){
+    $('#smu_recovery_container').css('display','block');
+  }else{
+    $('#smu_recovery_container').css('display','none');
+  }
 
   custom_smu_pars_update(function (){
     for (const [key, value] of Object.entries(configuration['smu_custom_pars'])) {
@@ -597,19 +633,50 @@ function start_run(){
   let voltage_time_step = parseFloat( $("#smu_time_step")[0].value );
   if (! voltage_time_step || voltage_time_step <= 0){
     show_error("Invalid SMU time step");
-    $('#myerror_popup_t_step')[0].classList.remove('myhide');
+    $('#myerror_popup_smu_t_step')[0].classList.remove('myhide');
     return;
   }
   let voltage_time_total = parseFloat( $("#smu_time_total")[0].value );
-  if (! voltage_time_step || voltage_time_step <= 0){
+  if (! voltage_time_total || voltage_time_total <= 0){
     show_error("Invalid SMU total time");
-    $('#myerror_popup_t_total')[0].classList.remove('myhide');
+    $('#myerror_popup_smu_t_total')[0].classList.remove('myhide');
     return;
   }
   if(voltage_profile_array.length == 0){
     show_error("Empty SMU voltage profile");
     $('#myerror_popup_smu_v_profile')[0].classList.remove('myhide');
     return;
+  }
+  let voltage_amp_factor_rec = parseFloat( $("#smu_voltage_factor_rec")[0].value );
+  let voltage_time_step_rec = parseFloat( $("#smu_time_step_rec")[0].value );
+  let voltage_time_total_rec = parseFloat( $("#smu_time_total_rec")[0].value );
+  let smu_rec_thresh = parseFloat($('#smu_rec_thresh')[0].value);
+  if($('#smu_recovery_enable')[0].checked){ 
+    if (! smu_rec_thresh || smu_rec_thresh <= 0){
+      show_error("Invalid SMU recovery threshold");
+      $('#myerror_popup_smu_rec_thresh')[0].classList.remove('myhide');
+      return;
+    }
+    if (! voltage_amp_factor_rec || voltage_amp_factor_rec <= 0){
+      show_error("Invalid SMU amplitude factor_rec");
+      $('#myerror_popup_smu_v_factor_rec')[0].classList.remove('myhide');
+      return;
+    }
+    if (! voltage_time_step_rec || voltage_time_step_rec <= 0){
+      show_error("Invalid SMU time step");
+      $('#myerror_popup_smu_t_step_rec')[0].classList.remove('myhide');
+      return;
+    }
+    if (! voltage_time_total_rec || voltage_time_total_rec <= 0){
+      show_error("Invalid SMU total time");
+      $('#myerror_popup_smu_t_total_rec')[0].classList.remove('myhide');
+      return;
+    }
+    if(voltage_profile_array_rec.length == 0){
+      show_error("Empty SMU voltage profile");
+      $('#myerror_popup_smu_v_profile_rec')[0].classList.remove('myhide');
+      return;
+    }
   }
   let smu_custom_pars = {};
   custom_pars_error = false;
@@ -638,7 +705,13 @@ function start_run(){
     "led_port": led_port,
     "led_type": led_type,
     'output_folder': output_folder,
-    'smu_custom_pars': smu_custom_pars
+    'smu_custom_pars': smu_custom_pars,
+    "smu_v_factor_rec": voltage_amp_factor_rec,
+    "smu_t_step_rec": voltage_time_step_rec,
+    "smu_t_total_rec": voltage_time_total_rec,
+    "smu_v_profile_rec": voltage_profile_array_rec,
+    'smu_recovery_enable': $("#smu_recovery_enable")[0].checked,
+    'smu_rec_thresh': smu_rec_thresh
   }
   save_configuration_to_cookie();
   console.log("Start run with settings:");
@@ -913,8 +986,9 @@ function gen_pix_map_example(){
 var smu_v_example_chart = gen_smu_v_example()
 var pixel_map_examp_chart = gen_pix_map_example();
 
-function draw_smu_v_example(){
-
+function draw_smu_v_example(recovery = false){
+  // console.log(recovery);
+  let suffix = recovery ? "_rec" : "";
   $('.mybig_popup').css('display','block');
   $('#my-pixel-map-example').css('display','none');
   $('#my-smu-voltage-example').css('display','block');
@@ -922,39 +996,42 @@ function draw_smu_v_example(){
   let newdataset = [];
   let curr_t = 0;
 
-  let voltage_time_step = parseFloat( $("#smu_time_step")[0].value );
+  let voltage_time_step = parseFloat( $("#smu_time_step"+suffix)[0].value );
   if (! voltage_time_step || voltage_time_step <= 0){
     show_error("Invalid SMU time step");
-    $('#myerror_popup_t_step')[0].classList.remove('myhide');
+    $('#myerror_popup_smu_t_step'+suffix)[0].classList.remove('myhide');
     return;
   }
-  let voltage_time_total = parseFloat( $("#smu_time_total")[0].value );
-  if (! voltage_time_step || voltage_time_step <= 0){
+  let voltage_time_total = parseFloat( $("#smu_time_total"+suffix)[0].value );
+  if (! voltage_time_total || voltage_time_total <= 0){
     show_error("Invalid SMU total time");
-    $('#myerror_popup_t_total')[0].classList.remove('myhide');
+    $('#myerror_popup_smu_t_total'+suffix)[0].classList.remove('myhide');
     return;
   }
 
-  if(voltage_profile_array.length == 0){
+  let myprofile = recovery ? voltage_profile_array_rec : voltage_profile_array;
+
+  if(myprofile.length == 0){
     show_error("Empty SMU voltage profile");
-    $('#myerror_popup_smu_v_profile')[0].classList.remove('myhide');
+    $('#myerror_popup_smu_v_profile'+suffix)[0].classList.remove('myhide');
     return;
   }
 
-  let voltage_amp_factor = parseFloat( $("#smu_voltage_factor")[0].value );
+  let voltage_amp_factor = parseFloat( $("#smu_voltage_factor"+suffix)[0].value );
   if (! voltage_amp_factor || voltage_amp_factor <= 0){
     show_error("Invalid SMU amplitude factor");
-    $('#myerror_popup_smu_v_factor')[0].classList.remove('myhide');
+    $('#myerror_popup_smu_v_factor'+suffix)[0].classList.remove('myhide');
     return;
   }
 
   while (curr_t < voltage_time_total){
-    for (let vol_i = 0; vol_i < voltage_profile_array.length; vol_i ++){
-      newdataset.push({x: curr_t, y: voltage_profile_array[vol_i]*voltage_amp_factor});
-      newdataset.push({x: curr_t+voltage_time_step, y: voltage_profile_array[vol_i]*voltage_amp_factor});
+    for (let vol_i = 0; vol_i < myprofile.length; vol_i ++){
+      newdataset.push({x: curr_t, y: myprofile[vol_i]*voltage_amp_factor});
+      newdataset.push({x: curr_t+voltage_time_step, y: myprofile[vol_i]*voltage_amp_factor});
       curr_t += voltage_time_step;
     }
   }
+  smu_v_example_chart.data.datasets[0].data.length = 0;
   smu_v_example_chart.data.datasets[0].data = newdataset
   smu_v_example_chart.update();
 }
